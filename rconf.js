@@ -3,14 +3,21 @@
 const os = require('os')
 const hostname = os.hostname()
 const yaml = require('yaml')
-const express = require('express')
 const fs = require('fs')
-const app = express()
 const needle = require('needle')
 const crypto = require('crypto')
 const mkdirp = require('mkdirp')
 const {dirname} = require('path')
 const { exec } = require('child_process')
+
+const joinPath = require('path').join
+
+const APPNAME = 'rconf'
+global.DATADIR = {
+  'win32': joinPath(process.env.APPDATA || '', APPNAME),
+  'darwin': joinPath(os.homedir(), 'Library', 'Application Support', APPNAME),
+  'linux': joinPath(os.homedir(), '.'+APPNAME)
+}[os.platform()]
 
 const run = (command) => exec(command, (error, stdout, stderr) => {
   if (error) {
@@ -76,23 +83,34 @@ if (queryUrl) {
   return
 }
 
+const confFile = joinPath(DATADIR, 'rconf.yaml')
+
+try {
+  fs.statSync(confFile)
+} catch (e) {
+  mkdirp(dirname(confFile))
+  fs.writeFileSync(confFile, `token: ${calculateHash(Math.random())}
+services: {}
+`)
+}
 every(1000, () => {
-  const c = yaml.parse(fs.readFileSync('./config/rconf.yaml', 'utf-8'))
+  const c = yaml.parse(fs.readFileSync(confFile, 'utf-8'))
 
   mapObjIndexed((v, k) => {
       v.name = v.name || k
       v.tag = v.tag || ['any']
       v.files = mapObjIndexed((v,k) => {
-        v.content = fs.readFileSync('./config/'+k, 'utf-8')
+        v.content = fs.readFileSync(joinPath(DATADIR, k), 'utf-8')
         return v
       }, v.files)
   }, c.services)
 
-  c.token = c.token || conf?.token || calculateHash(Math.random())
   conf = c
   // console.log(c.services.reticulum)
 })
 
+const express = require('express')
+const app = express()
 
 app.use(express.static('public'))
 
