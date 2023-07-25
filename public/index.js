@@ -24923,7 +24923,6 @@ var st = Ht;
 var _ = new Map;
 var ft = Vt;
 var dt = import_react9.memo(ft);
-var Fe = dt;
 
 // front/Tree.js
 var import_react15 = __toESM(require_react(), 1);
@@ -25895,6 +25894,10 @@ var react_accessible_treeview_esm_default = fe;
 // front/Tree.js
 var jsx_dev_runtime = __toESM(require_jsx_dev_runtime(), 1);
 var DirectoryTreeView = function({ onClick }) {
+  const [data, setData] = import_react15.default.useState(j({}));
+  import_react15.default.useEffect(() => {
+    fetch(window.location.href + "files").then((response) => response.json()).then((data2) => setData(j(data2))).catch((error) => console.error("Error fetching data:", error));
+  }, []);
   return jsx_dev_runtime.jsxDEV("div", {
     children: jsx_dev_runtime.jsxDEV("div", {
       className: "directory",
@@ -25933,15 +25936,6 @@ var DirectoryTreeView = function({ onClick }) {
     }, undefined, false, undefined, this)
   }, undefined, false, undefined, this);
 };
-var folder = {
-  name: "",
-  children: [
-    { name: "asd", metadata: { value: "123123", language: "html" } },
-    { name: "asd.conf", metadata: { value: "[a]\na=1", language: "conf" } },
-    { name: "asdd.conf", metadata: { value: "[a]\na=2", language: "conf" } }
-  ]
-};
-var data = j(folder);
 var FolderIcon = ({ isOpen }) => isOpen ? jsx_dev_runtime.jsxDEV(FaRegFolderOpen, {
   color: "e8a87c",
   className: "icon"
@@ -25982,12 +25976,13 @@ var Tree_default = DirectoryTreeView;
 var jsx_dev_runtime2 = __toESM(require_jsx_dev_runtime(), 1);
 var App = function() {
   const [file, setFile] = import_react16.default.useState({});
+  openFile = file;
   return jsx_dev_runtime2.jsxDEV(jsx_dev_runtime2.Fragment, {
     children: [
       jsx_dev_runtime2.jsxDEV(Tree_default, {
         onClick: setFile
       }, undefined, false, undefined, this),
-      jsx_dev_runtime2.jsxDEV(Fe, {
+      jsx_dev_runtime2.jsxDEV(dt, {
         height: "100vh",
         theme: "vs-dark",
         path: file.name,
@@ -25998,10 +25993,13 @@ var App = function() {
     ]
   }, undefined, true, undefined, this);
 };
+window.Editor = {};
+window.openFile = null;
 var onMount = (editor, monaco) => {
+  Editor = editor;
   editor.addAction({
-    id: "my-unique-id",
-    label: "My Label!!!",
+    id: "save",
+    label: "Save",
     keybindings: [
       monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS
     ],
@@ -26010,7 +26008,14 @@ var onMount = (editor, monaco) => {
     contextMenuGroupId: "navigation",
     contextMenuOrder: 1.5,
     run: function(ed) {
-      alert("i'm running => " + ed.getPosition());
+      fetch(window.location.href + "save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          value: ed.getModel().getValue(),
+          file: openFile.name
+        })
+      }).then((response) => response.json()).then(console.log).catch(console.error);
     }
   });
 };
