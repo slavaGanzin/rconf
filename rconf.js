@@ -9,6 +9,10 @@ const crypto = require('crypto')
 const mkdirp = require('mkdirp')
 const {dirname} = require('path')
 const { exec } = require('child_process')
+const platform = [os.hostname(), os.arch(), os.platform(), os.release(), os.version()].join('-').replace(/#/gim,'')
+const coerceArray = x => unless(is(Array), of, x)
+
+console.log(`Match this node platform: ${platform}`)
 
 const joinPath = require('path').join
 
@@ -55,7 +59,7 @@ const queryUrl = process.argv[2]
 if (queryUrl) {
   setInterval(() => {
     const hash = calculateHash(conf)
-    needle('get', queryUrl+'/'+hash).then(({body, statusCode}) => {
+    needle('get', queryUrl+`?platform=${platform}&hash=${hash}`).then(({body, statusCode}) => {
       console.log(statusCode)
       if (statusCode == 200) {
         const prevConf = clone(conf)
@@ -98,7 +102,8 @@ every(1000, () => {
 
   mapObjIndexed((v, k) => {
       v.name = v.name || k
-      v.tag = v.tag || ['any']
+      v.tag = coerceArray(v.tag || ['any'])
+      v.platform = coerceArray(v.platform || ['.*'])
       v.files = mapObjIndexed((v,k) => {
         v.content = fs.readFileSync(joinPath(DATADIR, k), 'utf-8')
         return v
@@ -106,16 +111,31 @@ every(1000, () => {
   }, c.services)
 
   conf = c
-  // console.log(c.services.reticulum)
 })
 
 const express = require('express')
 const app = express()
 
-app.use(express.static('public'))
+const path = require('path')
+app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.json())
 
-app.get('/:token/:tags?/:hash?', (req, res) => {
-  const {token, tags, hash} = req.params
+app.post('/save', (res, req) => {
+  fs.writeFileSync(joinPath(DATADIR, res.body.file), res.body.value)
+  req.json({'status': 'saved'})
+})
+
+app.get('/files', (res, req) => {
+  req.json({name: '', children: map(name => ({name, metadata: {
+    language: 'yaml',
+    value: fs.readFileSync(joinPath(DATADIR, name), 'utf8')
+  }}), fs.readdirSync(DATADIR))})
+})
+
+app.get('/:token/:tags', (req, res) => {
+  const {token, tags} = req.params
+  const {platform='.*', hash=''} = req.query
+
   const ip = req.ip.replace(/.*:(.*)/, '$1')
 
   if (conf.token != token) {
@@ -126,8 +146,8 @@ app.get('/:token/:tags?/:hash?', (req, res) => {
   const hasTag = tag => test(new RegExp(tags), tag.join(','))
 
   const c = clone(conf.services)
-  mapObjIndexed(({tag}, service) => {
-    if (!hasTag(tag)) delete c[service]
+  mapObjIndexed(({tag, platform}, service) => {
+    if (!new RegExp(join('|', platform), 'gim').test(platform) || !hasTag(tag)) delete c[service]
   }, c)
 
   if (calculateHash(c) == hash) return res.status(304).end()
@@ -135,9 +155,10 @@ app.get('/:token/:tags?/:hash?', (req, res) => {
   res.json(c)
 })
 
-app.listen(14141, () =>
+
+app.listen(14141, () => {
   mapObjIndexed((interfaces, name) => {
     const interface = find(x => x.family == 'IPv4', interfaces)
-    console.log(`sudo rconf http://${interface.address}:14141/${conf.token}/any #${name}\n`)
+    console.log(`GUI: http://${interface.address}:14141\nTo sync config run on remote machine in "${name}" network:\nsudo rconf http://${interface.address}:14141/${conf.token}/any\n`)
   }, os.networkInterfaces())
-)
+})
