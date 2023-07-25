@@ -1,2 +1,5 @@
 node_modules
 rconf
+rconf-linux
+rconf-macos
+rconf-win.exe
