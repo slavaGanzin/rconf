@@ -26046,7 +26046,10 @@ var jsx_dev_runtime = __toESM(require_jsx_dev_runtime(), 1);
 var DirectoryTreeView = function({ onClick }) {
   const [data, setData] = import_react15.default.useState(j({}));
   import_react15.default.useEffect(() => {
-    fetch(window.location.href + "files").then((response) => response.json()).then((data2) => setData(j(data2))).catch((error) => console.error("Error fetching data:", error));
+    fetch(window.location.href + "files").then((response) => response.json()).then((data2) => {
+      setActiveFile(data2.children[0]);
+      setData(j(data2));
+    }).catch((error) => console.error("Error fetching data:", error));
   }, []);
   return jsx_dev_runtime.jsxDEV("div", {
     children: jsx_dev_runtime.jsxDEV("div", {
@@ -26126,6 +26129,7 @@ var Tree_default = DirectoryTreeView;
 var jsx_dev_runtime2 = __toESM(require_jsx_dev_runtime(), 1);
 var App = function() {
   const [file, setFile] = import_react16.default.useState({});
+  window.setActiveFile = setFile;
   openFile = file;
   return jsx_dev_runtime2.jsxDEV(jsx_dev_runtime2.Fragment, {
     children: [
@@ -26143,6 +26147,7 @@ var App = function() {
     ]
   }, undefined, true, undefined, this);
 };
+document.title = `rconf ${window.location.host}`;
 window.Editor = {};
 window.openFile = null;
 var onMount = (editor, monaco) => {
