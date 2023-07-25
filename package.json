@@ -3,6 +3,12 @@
   "version": "0.1.0",
   "main": "index.js",
   "license": "MIT",
+  "bin": "rconf.js",
+  "pkg": {
+        "assets": [
+            "public/**/*"
+        ]
+    },
   "dependencies": {
     "@monaco-editor/react": "^4.5.1",
     "classnames": "^2.3.2",
