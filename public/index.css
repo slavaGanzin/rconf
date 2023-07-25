@@ -1,0 +1,64 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
+    "Droid Sans", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  display: flex;
+  background: #151515;
+}
+
+.directory {
+  width: 20vh;
+  background: #151515;
+  font-size: 16px;
+  color: white;
+  user-select: none;
+}
+
+.directory .tree,
+.directory .tree-node,
+.directory .tree-node-group {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.directory .tree-branch-wrapper,
+.directory .tree-node__leaf {
+  outline: none;
+  outline: none;
+}
+
+.directory .tree-node {
+  cursor: pointer;
+}
+
+.directory .tree-node:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.directory .tree .tree-node--focused {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.directory .tree .tree-node--selected {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.directory .tree-node__branch {
+  display: block;
+}
+
+.directory .icon {
+  vertical-align: middle;
+  padding-right: 5px;
+}
+
+.directory .file {
+  display: block;
+  widows: 100%;
+}
