@@ -100,6 +100,9 @@ try {
 } catch (e) {
   mkdirp(dirname(confFile))
   fs.writeFileSync(confFile, `token: ${calculateHash(Math.random())}
+auth:
+  admin: admin
+
 services: {}
 `)
 }
@@ -123,22 +126,7 @@ every(1000, () => {
 
 const express = require('express')
 const app = express()
-
-const path = require('path')
-app.use(express.static(path.join(__dirname, 'public')))
-app.use(express.json())
-
-app.post('/save', (res, req) => {
-  fs.writeFileSync(joinPath(DATADIR, res.body.file), res.body.value)
-  req.json({'status': 'saved'})
-})
-
-app.get('/files', (res, req) => {
-  req.json({name: '', children: sortBy(x => x.name == 'rconf.yaml' ? 'A' : x.name[0], map(name => ({name, metadata: {
-    language: detectLanguage(name),
-    value: fs.readFileSync(joinPath(DATADIR, name), 'utf8')
-  }}), fs.readdirSync(DATADIR)))})
-})
+const basicAuth = require('express-basic-auth')
 
 app.get('/:token/:tags', (req, res) => {
   const {token, tags} = req.params
@@ -162,6 +150,29 @@ app.get('/:token/:tags', (req, res) => {
   console.error(`${ip} updated tags:${tags}`)
   res.json(c)
 })
+
+if (conf?.auth) {
+  app.use(basicAuth({
+      users: conf.auth,
+      challenge: true,
+  }))
+}
+const path = require('path')
+app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.json())
+
+app.post('/save', (res, req) => {
+  fs.writeFileSync(joinPath(DATADIR, res.body.file), res.body.value)
+  req.json({'status': 'saved'})
+})
+
+app.get('/files', (res, req) => {
+  req.json({name: '', children: sortBy(x => x.name == 'rconf.yaml' ? 'A' : x.name[0], map(name => ({name, metadata: {
+    language: detectLanguage(name),
+    value: fs.readFileSync(joinPath(DATADIR, name), 'utf8')
+  }}), fs.readdirSync(DATADIR)))})
+})
+
 
 
 app.listen(14141, () => {
