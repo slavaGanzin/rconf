@@ -9,6 +9,7 @@ const crypto = require('crypto')
 const mkdirp = require('mkdirp')
 const {dirname} = require('path')
 const { exec } = require('child_process')
+const which = require('which')
 const platform = [os.hostname(), os.arch(), os.platform(), os.release(), os.version()].join('-').replace(/#/gim,'')
 const coerceArray = x => unless(is(Array), of, x)
 
@@ -23,19 +24,10 @@ global.DATADIR = {
   'linux': joinPath(os.homedir(), '.'+APPNAME)
 }[os.platform()]
 
-const run = (command) => exec(command, (error, stdout, stderr) => {
-  if (error) {
-    console.error(`Error executing the command: ${error.message}`);
-    return;
-  }
-
-  if (stderr) {
-    console.error(`Command execution produced an error: ${stderr}`);
-    return;
-  }
-
-  console.log(stdout);
-})
+const run = (command) => new Promise((r,j) => exec(command, (error, stdout, stderr) => {
+  if (error) return j({stdout, stderr, error})
+  r({stdout, stderr})
+}))
 
 function calculateHash(obj) {
   const hash = crypto.createHash('sha256')
@@ -76,8 +68,13 @@ if (queryUrl) {
             console.log(`${service}: ${f.path} updated`)
           }
 
+          Promise.all(values(mapObjIndexed((install, check) => which(check).catch(() => {
+            console.log(`${service}: install ${install}`)
+            run(install)
+          }), s.install || {})))
+
           console.log(`${service}: run ${s.restart}`)
-          run(s.restart)
+          if (s.restart) run(s.restart)
 
         }, conf)
       }
