@@ -1,4 +1,55 @@
 {
+  "ini": {
+    "color": "grey",
+    "extensions": [
+      ".conf",
+      ".ini"
+    ]
+  },
+  "Dockerfile": {
+    "type": "programming",
+    "color": "#384d54",
+    "tmScope": "source.dockerfile",
+    "extensions": [
+      ".dockerfile"
+    ],
+    "filenames": [
+      "Dockerfile"
+    ],
+    "aceMode": "dockerfile",
+    "codemirrorMode": "dockerfile",
+    "codemirrorMimeType": "text/x-dockerfile",
+    "languageId": 89
+  },
+  "Markdown": {
+    "type": "prose",
+    "color": "#083fa1",
+    "aliases": [
+      "pandoc"
+    ],
+    "aceMode": "markdown",
+    "codemirrorMode": "gfm",
+    "codemirrorMimeType": "text/x-gfm",
+    "wrap": true,
+    "extensions": [
+      ".md",
+      ".markdown",
+      ".mdown",
+      ".mdwn",
+      ".mdx",
+      ".mkd",
+      ".mkdn",
+      ".mkdown",
+      ".ronn",
+      ".scd",
+      ".workbook"
+    ],
+    "filenames": [
+      "contents.lr"
+    ],
+    "tmScope": "source.gfm",
+    "languageId": 222
+  },
   "YAML": {
     "type": "data",
     "color": "#cb171e",
@@ -1637,21 +1688,6 @@
     "aceMode": "text",
     "tmScope": "none",
     "languageId": 201049282
-  },
-  "Dockerfile": {
-    "type": "programming",
-    "color": "#384d54",
-    "tmScope": "source.dockerfile",
-    "extensions": [
-      ".dockerfile"
-    ],
-    "filenames": [
-      "Dockerfile"
-    ],
-    "aceMode": "dockerfile",
-    "codemirrorMode": "dockerfile",
-    "codemirrorMimeType": "text/x-dockerfile",
-    "languageId": 89
   },
   "Dogescript": {
     "type": "programming",
@@ -4256,35 +4292,6 @@
     "tmScope": "text.html.mako",
     "aceMode": "text",
     "languageId": 221
-  },
-  "Markdown": {
-    "type": "prose",
-    "color": "#083fa1",
-    "aliases": [
-      "pandoc"
-    ],
-    "aceMode": "markdown",
-    "codemirrorMode": "gfm",
-    "codemirrorMimeType": "text/x-gfm",
-    "wrap": true,
-    "extensions": [
-      ".md",
-      ".markdown",
-      ".mdown",
-      ".mdwn",
-      ".mdx",
-      ".mkd",
-      ".mkdn",
-      ".mkdown",
-      ".ronn",
-      ".scd",
-      ".workbook"
-    ],
-    "filenames": [
-      "contents.lr"
-    ],
-    "tmScope": "source.gfm",
-    "languageId": 222
   },
   "Marko": {
     "type": "markup",

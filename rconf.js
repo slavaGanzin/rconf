@@ -134,7 +134,7 @@ app.post('/save', (res, req) => {
 })
 
 app.get('/files', (res, req) => {
-  req.json({name: '', children: sortBy(x => x.name !== 'rconf.yaml', map(name => ({name, metadata: {
+  req.json({name: '', children: sortBy(x => x.name == 'rconf.yaml' ? 'A' : x.name[0], map(name => ({name, metadata: {
     language: detectLanguage(name),
     value: fs.readFileSync(joinPath(DATADIR, name), 'utf8')
   }}), fs.readdirSync(DATADIR)))})
