@@ -105,9 +105,10 @@ every(1000, () => {
       v.name = v.name || k
       v.tag = coerceArray(v.tag || ['any'])
       v.platform = coerceArray(v.platform || ['.*'])
-      v.files = mapObjIndexed((v,k) => {
-        v.content = fs.readFileSync(joinPath(DATADIR, k), 'utf-8')
-        return v
+      v.files = mapObjIndexed((f, name) => {
+        if (is(String, f)) f = {path: f}
+        f.content = fs.readFileSync(joinPath(DATADIR, name), 'utf-8')
+        return f
       }, v.files)
   }, c.services)
 
