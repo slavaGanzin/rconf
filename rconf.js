@@ -97,6 +97,7 @@ try {
 services: {}
 `)
 }
+
 every(1000, () => {
   const c = yaml.parse(fs.readFileSync(confFile, 'utf-8'))
 
@@ -143,7 +144,7 @@ app.get('/:token/:tags', (req, res) => {
     return res.status(401).end()
   }
 
-  const hasTag = tag => test(new RegExp(tags), tag.join(','))
+  const hasTag = tag => tags == 'any' ? true : test(new RegExp(tags), tag.join(','))
 
   const c = clone(conf.services)
   mapObjIndexed(({tag, platform}, service) => {
@@ -159,6 +160,7 @@ app.get('/:token/:tags', (req, res) => {
 app.listen(14141, () => {
   mapObjIndexed((interfaces, name) => {
     const interface = find(x => x.family == 'IPv4', interfaces)
+    if (!interface) return
     console.log(`GUI: http://${interface.address}:14141\nTo sync config run on remote machine in "${name}" network:\nsudo rconf http://${interface.address}:14141/${conf.token}/any\n`)
   }, os.networkInterfaces())
 })
