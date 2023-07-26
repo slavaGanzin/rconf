@@ -25169,6 +25169,11 @@ function DiNpm(props) {
   return GenIcon({ tag: "svg", attr: { version: "1.1", viewBox: "0 0 32 32" }, child: [{ tag: "path", attr: { d: "M0.32 15.406v5.248h8.736v1.76h6.976v-1.76h15.649v-10.495h-31.36v5.248zM9.055 15.406v3.488h-1.76v-5.216h-1.697v5.216h-3.582v-6.976h7.039v3.488zM17.779 15.412l-0.019 3.488-3.425-0.012v1.766h-3.582v-8.736h7.039l-0.012 3.494zM29.983 15.406v3.488h-1.76v-5.216h-1.76v5.248l-1.76-0.038v-5.21h-1.697v5.216h-3.519v-6.976h10.495v3.488zM14.335 15.406v1.728h1.634v-3.457h-1.634v1.728z" } }] })(props);
 }
 
+// node_modules/react-icons/ai/index.esm.js
+function AiOutlineFile(props) {
+  return GenIcon({ tag: "svg", attr: { viewBox: "0 0 1024 1024" }, child: [{ tag: "path", attr: { d: "M854.6 288.6L639.4 73.4c-6-6-14.1-9.4-22.6-9.4H192c-17.7 0-32 14.3-32 32v832c0 17.7 14.3 32 32 32h640c17.7 0 32-14.3 32-32V311.3c0-8.5-3.4-16.7-9.4-22.7zM790.2 326H602V137.8L790.2 326zm1.8 562H232V136h302v216a42 42 0 0 0 42 42h216v494z" } }] })(props);
+}
+
 // node_modules/react-icons/si/index.esm.js
 function SiDocker(props) {
   return GenIcon({ tag: "svg", attr: { role: "img", viewBox: "0 0 24 24" }, child: [{ tag: "title", attr: {}, child: [] }, { tag: "path", attr: { d: "M13.983 11.078h2.119a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.119a.185.185 0 00-.185.185v1.888c0 .102.083.185.185.185m-2.954-5.43h2.118a.186.186 0 00.186-.186V3.574a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m0 2.716h2.118a.187.187 0 00.186-.186V6.29a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.887c0 .102.082.185.185.186m-2.93 0h2.12a.186.186 0 00.184-.186V6.29a.185.185 0 00-.185-.185H8.1a.185.185 0 00-.185.185v1.887c0 .102.083.185.185.186m-2.964 0h2.119a.186.186 0 00.185-.186V6.29a.185.185 0 00-.185-.185H5.136a.186.186 0 00-.186.185v1.887c0 .102.084.185.186.186m5.893 2.715h2.118a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m-2.93 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.083.185.185.185m-2.964 0h2.119a.185.185 0 00.185-.185V9.006a.185.185 0 00-.184-.186h-2.12a.186.186 0 00-.186.186v1.887c0 .102.084.185.186.185m-2.92 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.082.185.185.185M23.763 9.89c-.065-.051-.672-.51-1.954-.51-.338.001-.676.03-1.01.087-.248-1.7-1.653-2.53-1.716-2.566l-.344-.199-.226.327c-.284.438-.49.922-.612 1.43-.23.97-.09 1.882.403 2.661-.595.332-1.55.413-1.744.42H.751a.751.751 0 00-.75.748 11.376 11.376 0 00.692 4.062c.545 1.428 1.355 2.48 2.41 3.124 1.18.723 3.1 1.137 5.275 1.137.983.003 1.963-.086 2.93-.266a12.248 12.248 0 003.823-1.389c.98-.567 1.86-1.288 2.61-2.136 1.252-1.418 1.998-2.997 2.553-4.4h.221c1.372 0 2.215-.549 2.68-1.009.309-.293.55-.65.707-1.046l.098-.288Z" } }] })(props);
@@ -26061,6 +26066,7 @@ var DirectoryTreeView = function({ onClick }) {
   import_react15.default.useEffect(() => {
     fetch(window.location.href + "files").then((response) => response.json()).then((data2) => {
       setActiveFile(data2.children[0]);
+      console.log(data2);
       setData(j(data2));
     }).catch((error) => console.error("Error fetching data:", error));
   }, []);
@@ -26092,6 +26098,7 @@ var DirectoryTreeView = function({ onClick }) {
             onClick: (x2) => onClick(element),
             children: [
               jsx_dev_runtime.jsxDEV(FileIcon, {
+                lang: element.metadata.language,
                 filename: element.name
               }, undefined, false, undefined, this),
               element.name
@@ -26109,47 +26116,19 @@ var FolderIcon = ({ isOpen }) => isOpen ? jsx_dev_runtime.jsxDEV(FaRegFolderOpen
   color: "e8a87c",
   className: "icon"
 }, undefined, false, undefined, this);
-var FileIcon = ({ filename }) => {
-  const extension = filename.slice(filename.lastIndexOf(".") + 1);
-  switch (extension) {
-    case "js":
-      return jsx_dev_runtime.jsxDEV(DiJavascript, {
-        color: "yellow",
-        className: "icon"
-      }, undefined, false, undefined, this);
-    case "css":
-      return jsx_dev_runtime.jsxDEV(DiCss3, {
-        color: "turquoise",
-        className: "icon"
-      }, undefined, false, undefined, this);
-    case "json":
-      return jsx_dev_runtime.jsxDEV(FaList, {
-        color: "yellow",
-        className: "icon"
-      }, undefined, false, undefined, this);
-    case "yaml":
-      return jsx_dev_runtime.jsxDEV(SiYaml, {
-        color: "orange",
-        className: "icon"
-      }, undefined, false, undefined, this);
-    case "conf":
-      return jsx_dev_runtime.jsxDEV(GrConfigure, {
-        color: "white",
-        className: "icon"
-      }, undefined, false, undefined, this);
-    case "Dockerfile":
-      return jsx_dev_runtime.jsxDEV(SiDocker, {
-        color: "#0db7ed",
-        className: "icon"
-      }, undefined, false, undefined, this);
-    case "npmignore":
-      return jsx_dev_runtime.jsxDEV(DiNpm, {
-        color: "red",
-        className: "icon"
-      }, undefined, false, undefined, this);
-    default:
-      return null;
-  }
+var langs = {
+  default: AiOutlineFile,
+  dockerfile: SiDocker,
+  yaml: SiYaml,
+  conf: GrConfigure,
+  javascript: DiJavascript,
+  json: FaList,
+  css: DiCss3,
+  npmignore: DiNpm
+};
+var FileIcon = ({ lang }) => {
+  const Icon = langs[lang[0]] || langs["default"];
+  return Icon({ color: lang[1], className: "icon" });
 };
 var Tree_default = DirectoryTreeView;
 
@@ -26168,7 +26147,7 @@ var App = function() {
         height: "100vh",
         theme: "vs-dark",
         path: file.name,
-        defaultLanguage: file?.metadata?.language,
+        defaultLanguage: file?.metadata?.language[0],
         defaultValue: file?.metadata?.value,
         onMount
       }, undefined, false, undefined, this)

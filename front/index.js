@@ -53,7 +53,7 @@ function App() {
         height="100vh"
         theme="vs-dark"
         path={file.name}
-        defaultLanguage={file?.metadata?.language}
+        defaultLanguage={file?.metadata?.language[0]}
         defaultValue={file?.metadata?.value}
         onMount={onMount}
       />

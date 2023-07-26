@@ -1,10 +1,7 @@
 import React from "react";
 
-
-
-
-
 import { DiCss3, DiJavascript, DiNpm } from "react-icons/di";
+import {AiOutlineFile} from "react-icons/ai"
 import { SiYaml, SiDocker } from "react-icons/si";
 import { GrConfigure  } from "react-icons/gr";
 import { FaList, FaRegFolder, FaRegFolderOpen } from "react-icons/fa";
@@ -18,6 +15,7 @@ function DirectoryTreeView({onClick}) {
       .then(response => response.json())
       .then(data => {
         setActiveFile(data.children[0])
+        console.log(data)
         setData(flattenTree(data))
       })
       .catch(error => console.error('Error fetching data:', error));
@@ -40,7 +38,7 @@ function DirectoryTreeView({onClick}) {
             <div {...getNodeProps()} style={{ paddingLeft: 20 * (level - 1) }}>
               {isBranch
                 ? <><FolderIcon isOpen={isExpanded} />{element.name}</>
-                : <span className='file' onClick={x => onClick(element)}><FileIcon filename={element.name} />{element.name}</span>}
+                : <span className='file' onClick={x => onClick(element)}><FileIcon lang={element.metadata.language} filename={element.name} />{element.name}</span>}
             </div>
           )}
         />
@@ -56,26 +54,19 @@ const FolderIcon = ({ isOpen }) =>
     <FaRegFolder color="e8a87c" className="icon" />
   );
 
-const FileIcon = ({ filename }) => {
-  const extension = filename.slice(filename.lastIndexOf(".") + 1);
-  switch (extension) {
-    case "js":
-      return <DiJavascript color="yellow" className="icon" />;
-    case "css":
-      return <DiCss3 color="turquoise" className="icon" />;
-    case "json":
-      return <FaList color="yellow" className="icon" />;
-    case "yaml":
-      return <SiYaml color="orange" className="icon" />;
-    case "conf":
-      return <GrConfigure color="white" className="icon" />;
-    case "Dockerfile":
-      return <SiDocker color="#0db7ed" className="icon" />;
-    case "npmignore":
-      return <DiNpm color="red" className="icon" />;
-    default:
-      return null;
-  }
+const langs = {
+  'default': AiOutlineFile,
+  'dockerfile': SiDocker,
+  'yaml': SiYaml,
+  'conf': GrConfigure,
+  'javascript': DiJavascript,
+  'json': FaList,
+  'css': DiCss3,
+  'npmignore': DiNpm,
+}
+const FileIcon = ({ lang }) => {
+  const Icon = langs[lang[0]] || langs['default']
+  return Icon({color: lang[1], className: 'icon'})
 };
 
 export default DirectoryTreeView;

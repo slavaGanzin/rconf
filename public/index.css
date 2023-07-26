@@ -17,6 +17,7 @@ body {
   font-size: 16px;
   color: white;
   user-select: none;
+  padding-left: 5px;
 }
 
 .directory .tree,
