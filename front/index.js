@@ -2,6 +2,9 @@ document.title = `rconf ${window.location.host}`
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {monokaiB} from './themes.js'
+import './global.js'
+import './WebSocket.js'
+import './State.js'
 import {Log} from './Log.js'
 
 import {Editor as Monaco} from '@monaco-editor/react';
@@ -28,36 +31,30 @@ const onMount = (editor, monaco) => {
     contextMenuOrder: 1.5,
 
     run: function (ed) {
-      fetch(window.location.href+'save', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          value: ed.getModel().getValue(),
-          file: openFile.name
-        }),
+      ws.emit('file:save', {
+        value: ed.getModel().getValue(),
+        file: State.selectedFile.name
       })
-      .then(response => response.json())
-      .then(console.log).catch(console.error)
     },
   });
 }
 
+const MonacoEditor = () => {
+  useObservable('selectedFile')
+
+  return <Monaco
+    height="100vh"
+    theme="vs-dark"
+    path={State.selectedFile?.name}
+    defaultLanguage={State.selectedFile?.metadata?.language[0]}
+    defaultValue={State.selectedFile?.metadata?.value}
+    onMount={onMount}
+  />
+}
 function App() {
-  const [file, setFile] = React.useState({});
-
-  window.setActiveFile = setFile
-  openFile = file
-
   return <>
-      <Tree onClick={setFile}/>
-      <Monaco
-        height="100vh"
-        theme="vs-dark"
-        path={file.name}
-        defaultLanguage={file?.metadata?.language[0]}
-        defaultValue={file?.metadata?.value}
-        onMount={onMount}
-      />
+      <Tree onClick={x => State.selectedFile = x}/>
+      <MonacoEditor/>
       <Log/>
   </>
 }

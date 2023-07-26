@@ -8,24 +8,12 @@ import { FaGear, FaList, FaRegFolder, FaRegFolderOpen } from "react-icons/fa6";
 import TreeView, { flattenTree } from "react-accessible-treeview";
 
 function DirectoryTreeView({onClick}) {
-  const [data, setData] = React.useState(flattenTree({}))
-
-  React.useEffect(() => {
-    fetch(window.location.href+'files')
-      .then(response => response.json())
-      .then(data => {
-        setActiveFile(data.children[0])
-        console.log(data)
-        setData(flattenTree(data))
-      })
-      .catch(error => console.error('Error fetching data:', error));
-  }, []);
-
+  useObservable('files')
   return (
     <div>
       <div className="directory">
         <TreeView
-          data={data}
+          data={flattenTree({name: '', children: State.files})}
           aria-label="directory tree"
           nodeRenderer={({
             element,

@@ -14,6 +14,7 @@
     "classnames": "^2.3.2",
     "express": "^4.18.2",
     "express-basic-auth": "^1.2.1",
+    "express-ws": "^5.0.2",
     "needle": "^3.2.0",
     "node-which": "^1.0.0",
     "node-yaml": "^4.0.1",
@@ -23,6 +24,7 @@
     "react-accessible-treeview": "^2.6.3",
     "react-dom": "^18.2.0",
     "react-icons": "^4.10.1",
+    "throttle-debounce": "^5.0.0",
     "yaml": "^2.3.1"
   }
 }

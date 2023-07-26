@@ -12,6 +12,9 @@ const { exec } = require('child_process')
 const which = require('which')
 const platform = [os.hostname(), os.arch(), os.platform(), os.release(), os.version()].join('-').replace(/#/gim,'')
 const coerceArray = x => unless(is(Array), of, x)
+const decode = JSON.parse
+const encode = JSON.stringify
+
 for (const f in require('ramda'))
   global[f] = require('ramda')[f]
 const every = (ms, fn) => {
@@ -127,51 +130,126 @@ every(1000, () => {
 const express = require('express')
 const app = express()
 const basicAuth = require('express-basic-auth')
+//
+// app.get('/:token/:tags', (req, res) => {
+//   const {token, tags} = req.params
+//   const {platform='.*', hash=''} = req.query
+//   console.log({token, tags})
+//
+//   const ip = req.ip.replace(/.*:(.*)/, '$1')
+//
+//   if (conf.token != token) {
+//     console.error(`${ip} unathorized token:${token}`)
+//     return res.status(401).end()
+//   }
+//
+//   const hasTag = tag => tags == 'any' ? true : test(new RegExp(tags), tag.join(','))
+//
+//   const c = clone(conf.services)
+//   mapObjIndexed(({tag, platform}, service) => {
+//     if (!new RegExp(join('|', platform), 'gim').test(platform) || !hasTag(tag)) delete c[service]
+//   }, c)
+//
+//   if (calculateHash(c) == hash) return res.status(304).end()
+//   console.error(`${ip} updated tags:${tags}`)
+//   res.json(c)
+// })
 
-app.get('/:token/:tags', (req, res) => {
-  const {token, tags} = req.params
-  const {platform='.*', hash=''} = req.query
 
-  const ip = req.ip.replace(/.*:(.*)/, '$1')
-
-  if (conf.token != token) {
-    console.error(`${ip} unathorized token:${token}`)
-    return res.status(401).end()
-  }
-
-  const hasTag = tag => tags == 'any' ? true : test(new RegExp(tags), tag.join(','))
-
-  const c = clone(conf.services)
-  mapObjIndexed(({tag, platform}, service) => {
-    if (!new RegExp(join('|', platform), 'gim').test(platform) || !hasTag(tag)) delete c[service]
-  }, c)
-
-  if (calculateHash(c) == hash) return res.status(304).end()
-  console.error(`${ip} updated tags:${tags}`)
-  res.json(c)
-})
 
 if (conf?.auth) {
-  app.use(basicAuth({
-      users: conf.auth,
-      challenge: true,
-  }))
+  app.use([
+    basicAuth({ users: conf.auth, challenge: true, }),
+    express.static(joinPath(__dirname, 'public'))
+  ])
 }
-const path = require('path')
-app.use(express.static(path.join(__dirname, 'public')))
-app.use(express.json())
 
-app.post('/save', (res, req) => {
-  fs.writeFileSync(joinPath(DATADIR, res.body.file), res.body.value)
-  req.json({'status': 'saved'})
+// app.use(express.json())
+
+const expressWs = require("express-ws")(app)
+for (const name of ['Sync', 'Server']) {
+  global[name] = {
+    sockets: [],
+    events:  {},
+    on: (e, f) => {
+      const [event, ...options] = e.split(' ')
+      const silent = includes('silent', options)
+      const permissions = without('silent', options)
+
+      global[name].events[event] = concat(defaultTo([], global[name].events[event]), [
+        (ws, ...args) => {
+          // for (const p of permissions)
+          //   if (!includes(p, dotPath('user.permissions', ws)))
+          //     return console.log('no permission', p, dotPath('user.permissions', ws))
+
+          if (!silent) console.log({[event]: args})
+
+          return f(ws, ...args)
+        }
+      ])
+    },
+    onMessage: ws => x => {
+      const message = decode(x)
+
+      for (const event of Object.keys(message)) {
+        if (!global[name].events[event])
+          return console.error(`No ws handler for  ${event}`)
+
+        for (const f of global[name].events[event]) {
+          Promise.resolve(f(ws, message[event]))
+            .then(data => {
+              if (!isNil(data)) ws._emit(event, data)
+            })
+            .catch(error => {
+              ws._emit(`${event}:error`, error)
+              console.error(event, error)
+            })
+        }
+      }
+    },
+    broadcast: (event, data) => {
+//TODO: check permissions!
+
+
+      console.log(event, data, pluck('user', global[name].sockets))
+      global[name].sockets.map(socket => socket._emit(event, data))
+    }
+  }
+
+  app.ws('/'+name, function(ws, req) {
+    ws._emit = (event, data) => {
+      try {
+        ws.send(encode({[event]: data}))
+      }catch (e) {
+        if (/Unrecognized object/.test(String(e)))
+          console.log(data)
+        else
+          console.log(e, {[event]: data})
+      }
+    }
+
+    ws.on('message', global[name].onMessage(ws))
+    global[name].sockets.push(ws)
+    console.log(name, 'connected')
+  });
+
+  global[name].on('browser:error', (_, x) => console.error(x))
+}
+
+Server.on('file:save', (ws, {file, value}) => {
+  fs.writeFileSync(joinPath(DATADIR, file), value)
+  return {'status': 'saved'}
 })
 
-app.get('/files', (res, req) => {
-  req.json({name: '', children: sortBy(x => x.name == 'rconf.yaml' ? 'A' : x.name[0], map(name => ({name, metadata: {
+Server.on('file:list', ws =>
+  sortBy(x => x.name == 'rconf.yaml' ? 'A' : x.name[0], map(name => ({name, metadata: {
     language: detectLanguage(name),
     value: fs.readFileSync(joinPath(DATADIR, name), 'utf8')
-  }}), fs.readdirSync(DATADIR)))})
-})
+  }}), fs.readdirSync(DATADIR)))
+)
+// app.get('/files', (res, req) => {
+//   req.json()
+// })
 
 
 
