@@ -2,6 +2,7 @@ document.title = `rconf ${window.location.host}`
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {monokaiB} from './themes.js'
+import {Log} from './Log.js'
 
 import {Editor as Monaco} from '@monaco-editor/react';
 import Tree from './Tree.js'
@@ -57,6 +58,7 @@ function App() {
         defaultValue={file?.metadata?.value}
         onMount={onMount}
       />
+      <Log/>
   </>
 }
 

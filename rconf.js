@@ -29,7 +29,7 @@ const detectLanguage = file => {
   return (languages.find(x => x[2].test(file)) || ['yaml', 'orange'])
 }
 
-console.log(`Match this node platform: ${platform}`)
+console.log(`Match this node:\n  ${platform}\n`)
 
 const joinPath = require('path').join
 
@@ -177,8 +177,8 @@ app.get('/files', (res, req) => {
 
 app.listen(14141, () => {
   mapObjIndexed((interfaces, name) => {
-    const interface = find(x => x.family == 'IPv4', interfaces)
+    const interface = find(x => x.family == 'IPv4' && !x.internal, interfaces)
     if (!interface) return
-    console.log(`GUI: http://${interface.address}:14141\nTo sync config run on remote machine in "${name}" network:\nsudo rconf http://${interface.address}:14141/${conf.token}/any\n`)
+    console.log(`"${name}" network:\n  GUI:\n    http://${interface.address}:14141  \n  sync config command:\n    sudo rconf http://${interface.address}:14141/${conf.token}/any\n`)
   }, os.networkInterfaces())
 })
