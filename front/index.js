@@ -1,7 +1,7 @@
 document.title = `rconf ${window.location.host}`
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {monokai} from './themes.js'
+import {monokaiB} from './themes.js'
 
 import {Editor as Monaco} from '@monaco-editor/react';
 import Tree from './Tree.js'
@@ -11,7 +11,7 @@ window.openFile = null
 
 const onMount = (editor, monaco) => {
   Editor = editor
-  monaco.editor.defineTheme('monokai', monokai)
+  monaco.editor.defineTheme('monokai', monokaiB)
   monaco.editor.setTheme('monokai');
   editor.addAction({
     id: "save",

@@ -1,10 +1,10 @@
 import React from "react";
 
-import { DiCss3, DiJavascript, DiNpm } from "react-icons/di";
+import { DiCss3, DiJavascript, DiNpm, DiMarkdown } from "react-icons/di";
 import {AiOutlineFile} from "react-icons/ai"
-import { SiYaml, SiDocker } from "react-icons/si";
+import { SiPowershell, SiYaml, SiDocker } from "react-icons/si";
 import { GrConfigure  } from "react-icons/gr";
-import { FaList, FaRegFolder, FaRegFolderOpen } from "react-icons/fa";
+import { FaGear, FaList, FaRegFolder, FaRegFolderOpen } from "react-icons/fa6";
 import TreeView, { flattenTree } from "react-accessible-treeview";
 
 function DirectoryTreeView({onClick}) {
@@ -63,6 +63,9 @@ const langs = {
   'json': FaList,
   'css': DiCss3,
   'npmignore': DiNpm,
+  'markdown': DiMarkdown,
+  'ini': FaGear,
+  'shell':SiPowershell,
 }
 const FileIcon = ({ lang }) => {
   const Icon = langs[lang[0]] || langs['default']
