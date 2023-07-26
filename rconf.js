@@ -134,10 +134,10 @@ app.post('/save', (res, req) => {
 })
 
 app.get('/files', (res, req) => {
-  req.json({name: '', children: map(name => ({name, metadata: {
+  req.json({name: '', children: sortBy(x => x.name !== 'rconf.yaml', map(name => ({name, metadata: {
     language: detectLanguage(name),
     value: fs.readFileSync(joinPath(DATADIR, name), 'utf8')
-  }}), fs.readdirSync(DATADIR))})
+  }}), fs.readdirSync(DATADIR)))})
 })
 
 app.get('/:token/:tags', (req, res) => {
