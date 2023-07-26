@@ -73,8 +73,10 @@ if (queryUrl) {
             run(install)
           }), s.install || {})))
 
-          console.log(`${service}: run ${s.restart}`)
-          if (s.restart) run(s.restart)
+          if (s.command) {
+            console.log(`${service}: run ${s.command}`)
+            run(s.command)
+          }
 
         }, conf)
       }
