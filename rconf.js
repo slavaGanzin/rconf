@@ -12,6 +12,22 @@ const { exec } = require('child_process')
 const which = require('which')
 const platform = [os.hostname(), os.arch(), os.platform(), os.release(), os.version()].join('-').replace(/#/gim,'')
 const coerceArray = x => unless(is(Array), of, x)
+for (const f in require('ramda'))
+  global[f] = require('ramda')[f]
+const every = (ms, fn) => {
+ fn()
+ return setInterval(fn, ms)
+}
+
+const languages = reject(isNil, values(mapObjIndexed((v,name) => {
+  const m = concat(v.extensions || [], v.filenames || [])
+  if (isEmpty(m)) return
+  return [name.toLowerCase(), v.color, new RegExp(m.map(x => x.replace('.', '\\.').replace(/\+/gim, '\\+')).join('$|')+'$' || 'dont match anything', 'gim')]
+}, require('./languages.json'))))
+
+const detectLanguage = file => {
+  return (languages.find(x => x[2].test(file)) || ['yaml', 'orange'])
+}
 
 console.log(`Match this node platform: ${platform}`)
 
@@ -35,16 +51,7 @@ function calculateHash(obj) {
   return hash.digest('hex')
 }
 
-for (const f in require('ramda'))
-  global[f] = require('ramda')[f]
-
-const every = (ms, fn) => {
- fn()
- return setInterval(fn, ms)
-}
-
 let conf = null
-
 
 const queryUrl = process.argv[2]
 
@@ -128,7 +135,7 @@ app.post('/save', (res, req) => {
 
 app.get('/files', (res, req) => {
   req.json({name: '', children: map(name => ({name, metadata: {
-    language: 'yaml',
+    language: detectLanguage(name),
     value: fs.readFileSync(joinPath(DATADIR, name), 'utf8')
   }}), fs.readdirSync(DATADIR))})
 })

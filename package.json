@@ -17,6 +17,7 @@
     "node-which": "^1.0.0",
     "node-yaml": "^4.0.1",
     "prop-types": "^15.8.1",
+    "ramda": "0.28",
     "react": "^18.2.0",
     "react-accessible-treeview": "^2.6.3",
     "react-dom": "^18.2.0",
