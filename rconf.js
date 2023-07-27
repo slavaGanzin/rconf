@@ -161,7 +161,12 @@ const updateConfig = () => {
      v.platform = coerceArray(v.platform || ['.*'])
      v.files = mapObjIndexed((f, name) => {
        if (is(String, f)) f = {path: f}
-       f.content = fs.readFileSync(joinPath(DATADIR, name), 'utf-8')
+       try {
+         f.content = fs.readFileSync(joinPath(DATADIR, name), 'utf-8')
+       } catch (e) {
+         Server.broadcast('log', {status:'error', time: new Date(), message: e.message})
+         return
+       }
        return f
      }, v.files)
   }, c.services)
