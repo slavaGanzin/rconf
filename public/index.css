@@ -92,3 +92,35 @@ body {
   animation-name: fadeIn;
   animation-duration: 300ms;
 }
+
+.status-error, .status-ok, .status-inprogress {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-error {
+  background-color: red;
+}
+
+.status-ok {
+  background-color: #00cf00;
+}
+
+.status-inprogress {
+  background-color: yellow;
+}
+
+.logLine {
+  cursor: pointer;
+}
+
+.logLine .log {
+  padding-left: 1rem;
+  display: none;
+}
+
+.logLine.expanded .log {
+  display: block;
+}

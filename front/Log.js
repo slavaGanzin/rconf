@@ -6,10 +6,12 @@ export const Log = () => {
     <div id='logHeader'>Logs</div>
     <div id='logList'>
       {reverse(State.log).map(x =>
-        <details className='fadeIn'>
-          <summary>{x.time} {x.ip} {x.service}: {x.message}</summary>
-          <div>{values(mapObjIndexed((v,k) => <><div>{k}</div><pre>{v}</pre></>, x.json))}</div>
-        </details>)}
+        <>
+        <div className='fadeIn logLine' onClick={x => x.currentTarget.toggleClass('expanded')}>
+          <summary><div className={'fadeIn status-'+x.status}/> {x.time} {x.ip} {x.service}: {x.message}</summary>
+          <div className='log fadeIn'>{values(mapObjIndexed((v,k) => <><div>{k}</div><pre>{v}</pre></>, x.json))}</div>
+        </div>
+      </>)}
     </div>
   </div>
 }

@@ -44,8 +44,9 @@ global.DATADIR = {
 }[os.platform()]
 
 const run = (command) => new Promise((r,j) => exec(command, (error, stdout, stderr) => {
-  if (error) return j({stdout, stderr, error})
-  r({stdout, stderr})
+  if (error) return r({stdout, stderr, status: 'error'})
+  console.log(error)
+  r({stdout, stderr, status: 'ok'})
 }))
 
 function calculateHash(obj) {
@@ -78,21 +79,21 @@ if (queryUrl) {
       mapObjIndexed(async (s, service) => {
         if (calculateHash(propOr({}, service, prevConf)) == calculateHash(s)) return
 
-        log(service, 'changed', {})
+        log(service, 'changed', {status: 'inprogress'})
         for (const f of values(s.files)) {
           mkdirp.sync(dirname(f.path))
 
           if (tryCatch(fs.statSync, () => false)(f.path) && calculateHash(fs.readFileSync(f.path,'utf8')) == calculateHash(f.content)) continue
           fs.writeFileSync(f.path, f.content)
-          log(service, 'file:updated', {path: f.path})
+          log(service, 'file:updated '+f.path, {status: 'inprogress'})
         }
 
         await Promise.all(values(mapObjIndexed((install, check) => which(check).catch(() => {
-          run(install).then(x => log(service, 'install', x))
+          run(install).then(x => log(service, install, x))
         }), s.install || {})))
 
         if (s.command) {
-          run(s.command).then(x => log(service, 'command', x))
+          run(s.command).then(x => log(service, s.command, x))
         }
 
       }, conf)
@@ -297,6 +298,10 @@ Server.on('file:list', ws =>
 Sync.on('log', (ws, message) => {
   message.ip = ws._socket.remoteAddress.replace(/.*:(.*)/, '$1')
   message.time = new Date()
+  if (message.json.status) {
+    message.status = message.json.status
+    delete message.json.status
+  }
   console.log(JSON.stringify(message, null, ' '))
   Server.broadcast('log', message)
 })
