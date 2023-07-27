@@ -10,3 +10,7 @@ ws.on('file:list', f => {
 })
 
 ws.on('file:save', () => {})
+
+State.log = []
+ws.on('log', log => State.log.push(log))
+ws.on('log', console.log)
