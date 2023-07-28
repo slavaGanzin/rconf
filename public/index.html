@@ -22,7 +22,136 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>rconf</title>
-    <link rel="stylesheet" href="/index.css" />
+    <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
+        "Droid Sans", "Helvetica Neue", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    #root {
+      display: flex;
+      background: #272822;
+    }
+
+    .directory {
+      width: 20vh;
+      background: #272822;
+      font-size: 16px;
+      color: white;
+      user-select: none;
+      padding-left: 5px;
+    }
+
+    .directory .tree,
+    .directory .tree-node,
+    .directory .tree-node-group {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .directory .tree-branch-wrapper,
+    .directory .tree-node__leaf {
+      outline: none;
+      outline: none;
+    }
+
+    .directory .tree-node {
+      cursor: pointer;
+    }
+
+    .directory .tree-node:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .directory .tree .tree-node--focused {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .directory .tree .tree-node--selected {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .directory .tree-node__branch {
+      display: block;
+    }
+
+    .directory .icon {
+      vertical-align: middle;
+      padding-right: 5px;
+    }
+
+    .directory .file {
+      display: block;
+      widows: 100%;
+    }
+
+    #log {
+      position: fixed;
+      right: 0;
+      width: 20vw;
+      backdrop-filter: blur(10px);
+      height: 100vh;
+      transition: all 0.3s ease-out;
+      color: white;
+      padding: 5px;
+    }
+
+    #log:hover {
+      width: 80vw;
+      /* height: 90vh; */
+    }
+
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+
+    .fadeIn {
+      animation-name: fadeIn;
+      animation-duration: 300ms;
+    }
+
+    .status-error, .status-ok, .status-inprogress {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .status-error {
+      background-color: red;
+    }
+
+    .status-ok {
+      background-color: #00cf00;
+    }
+
+    .status-inprogress {
+      background-color: yellow;
+    }
+
+    .logLine {
+      cursor: pointer;
+    }
+
+    .logLine .log {
+      padding-left: 1rem;
+      display: none;
+    }
+
+    .logLine.expanded .log {
+      display: block;
+    }
+
+    </style>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
