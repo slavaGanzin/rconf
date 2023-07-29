@@ -133,6 +133,7 @@ if (queryUrl) {
   return
 }
 
+mkdirp(joinPath(DATADIR, '.log'))
 const confFile = joinPath(DATADIR, 'rconf.yaml')
 
 try {
@@ -304,7 +305,6 @@ Server.on('connect', ws => Sync.broadcast('config:ask', {}))
 Sync.on('connect', ws => ws._emit('config:ask', {}))
 Sync.on('disconnect', ws => log({status: 'error', message: 'disconnected'}, ws, true))
 
-mkdirp(joinPath(DATADIR, '.log'))
 const LOGFILE = joinPath(DATADIR, '.log', (new Date).toISOString().slice(0, 10)+'.json')
 
 Server.on('log:today', (ws, message) =>
@@ -340,7 +340,7 @@ Sync.on('config', (ws, {token, tags, platform, hash}) => {
 })
 
 for (const p of ['uncaughtException', 'unhandledRejection', 'warning']) {
-  process.on(p, (error) => log({message: error.message, status: 'error'}))
+  process.on(p, (error) => log({id: 'rconf', message: error.message, status: 'error'}))
 }
 
 app.listen(14141, () => {
