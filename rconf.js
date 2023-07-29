@@ -14,6 +14,35 @@ const platform = [os.hostname(), os.arch(), os.platform(), os.release(), os.vers
 const coerceArray = x => unless(is(Array), of, x)
 const decode = JSON.parse
 const encode = JSON.stringify
+const diff = require('diff');
+
+const getDiff = (f1, f2) => {
+  const differences = diff.diffLines(f1, f2);
+  let line = 1
+  const changes = []
+  differences.forEach(part => {
+    if (part.added) {
+      // const l = last(changes)
+      // if (l.remove && l.line == line) {
+      //   changes.push({modify: [l.remove, part.value], line})
+      //   delete changes[changes.length-2]
+      // } else
+        changes.push({add: part.value, line})
+      line += part.count
+    }
+    else if (part.removed) {
+      changes.push({remove: part.value, line})
+    }
+    else {
+      // console.log(`Unchanged: ${part.value}`);
+      line += part.count
+    }
+  });
+  return reject(isNil, changes)
+}
+
+// Print the differences to the console
+
 
 for (const f in require('ramda'))
   global[f] = require('ramda')[f]
@@ -62,9 +91,11 @@ const queryUrl = process.argv[2]
 if (queryUrl) {
   const URL = new (require('url').URL)(queryUrl)
   const [_,token, tags] = split('/', URL.pathname)
-  console.log(URL)
   require('./wsclient')('ws://'+URL.host+'/Sync', {
     connect: emit => {
+      emit({config: {platform, token, tags, hash: calculateHash(conf)}})
+    },
+    'config:ask': emit => {
       emit({config: {platform, token, tags, hash: calculateHash(conf)}})
     },
     config: (emit, update) => {
@@ -79,13 +110,15 @@ if (queryUrl) {
       mapObjIndexed(async (s, service) => {
         if (calculateHash(propOr({}, service, prevConf)) == calculateHash(s)) return
 
-        log(service, 'changed', {status: 'inprogress'})
+        // log(service, 'changed', {status: 'inprogress'})
         for (const f of values(s.files)) {
           mkdirp.sync(dirname(f.path))
 
-          if (tryCatch(fs.statSync, () => false)(f.path) && calculateHash(fs.readFileSync(f.path,'utf8')) == calculateHash(f.content)) continue
+          const prev = tryCatch(fs.readFileSync, () => '')(f.path, 'utf8')
+
+          if (calculateHash(prev) == calculateHash(f.content)) continue
           fs.writeFileSync(f.path, f.content)
-          log(service, 'file:updated '+f.path, {status: 'inprogress'})
+          log(service, 'file:updated '+f.path, {status: 'inprogress', diff: getDiff(prev, f.content)})
         }
 
         await Promise.all(values(mapObjIndexed((install, check) => which(check).catch(() => {
@@ -100,42 +133,6 @@ if (queryUrl) {
     }
   })
   return
-
-  // setInterval(() => {
-  //   const hash = calculateHash(conf)
-  //   needle('get', queryUrl+`?platform=${platform}&hash=${hash}`).then(({body, statusCode}) => {
-  //     console.log(statusCode)
-  //     if (statusCode == 200) {
-  //       const prevConf = clone(conf)
-  //       conf = body
-  //
-  //       mapObjIndexed((s, service) => {
-  //         if (calculateHash(propOr({}, service, prevConf)) == calculateHash(s)) return
-  //         console.log(`${service}: changed`)
-  //         for (const f of values(s.files)) {
-  //           mkdirp.sync(dirname(f.path))
-  //
-  //           if (tryCatch(fs.statSync, () => false)(f.path) && calculateHash(fs.readFileSync(f.path,'utf8')) == calculateHash(f.content)) continue
-  //           fs.writeFileSync(f.path, f.content)
-  //           console.log(`${service}: ${f.path} updated`)
-  //         }
-  //
-  //         Promise.all(values(mapObjIndexed((install, check) => which(check).catch(() => {
-  //           console.log(`${service}: install ${install}`)
-  //           run(install)
-  //         }), s.install || {})))
-  //
-  //         if (s.command) {
-  //           console.log(`${service}: run ${s.command}`)
-  //           run(s.command)
-  //         }
-  //
-  //       }, conf)
-  //     }
-  //   })
-  // }, 1000)
-  //
-  // return
 }
 
 const confFile = joinPath(DATADIR, 'rconf.yaml')
@@ -179,31 +176,6 @@ every(1000, updateConfig)
 const express = require('express')
 const app = express()
 const basicAuth = require('express-basic-auth')
-//
-// app.get('/:token/:tags', (req, res) => {
-//   const {token, tags} = req.params
-//   const {platform='.*', hash=''} = req.query
-//   console.log({token, tags})
-//
-//   const ip = req.ip.replace(/.*:(.*)/, '$1')
-//
-//   if (conf.token != token) {
-//     console.error(`${ip} unathorized token:${token}`)
-//     return res.status(401).end()
-//   }
-//
-//   const hasTag = tag => tags == 'any' ? true : test(new RegExp(tags), tag.join(','))
-//
-//   const c = clone(conf.services)
-//   mapObjIndexed(({tag, platform}, service) => {
-//     if (!new RegExp(join('|', platform), 'gim').test(platform) || !hasTag(tag)) delete c[service]
-//   }, c)
-//
-//   if (calculateHash(c) == hash) return res.status(304).end()
-//   console.error(`${ip} updated tags:${tags}`)
-//   res.json(c)
-// })
-
 
 
 if (conf?.auth) {
@@ -219,7 +191,10 @@ const expressWs = require("express-ws")(app)
 for (const name of ['Sync', 'Server']) {
   global[name] = {
     sockets: [],
-    events:  {},
+    events:  {
+      connect: [],
+      disconnect: []
+    },
     on: (e, f) => {
       const [event, ...options] = e.split(' ')
       const silent = includes('silent', options)
@@ -277,9 +252,11 @@ for (const name of ['Sync', 'Server']) {
       }
     }
 
+    console.log(ws)
     ws.on('message', global[name].onMessage(ws))
+    ws.on('close', () => global[name].events.disconnect.map(x => x(ws)))
     global[name].sockets.push(ws)
-    console.log(name, 'connected')
+    global[name].events.connect.map(x => x(ws))
   });
 
   global[name].on('browser:error', (_, x) => console.error(x))
@@ -289,7 +266,7 @@ for (const name of ['Sync', 'Server']) {
 Server.on('file:save', (ws, {file, value}) => {
   fs.writeFileSync(joinPath(DATADIR, file), value)
   updateConfig()
-  Sync.broadcast('connect', {})
+  Sync.broadcast('config:ask', {})
   return {'status': 'saved'}
 })
 
@@ -299,6 +276,12 @@ Server.on('file:list', ws =>
     value: fs.readFileSync(joinPath(DATADIR, name), 'utf8')
   }}), fs.readdirSync(DATADIR)))
 )
+
+Sync.on('disconnect', ws => {
+  const message = {id: ws._socket.remoteAddress.replace(/.*:(.*)/, '$1'), status: 'error', message: 'disconnected', time: new Date()}
+  Server.broadcast('node', message)
+  Server.broadcast('log', message)
+})
 
 Sync.on('log', (ws, message) => {
   message.ip = ws._socket.remoteAddress.replace(/.*:(.*)/, '$1')
@@ -313,19 +296,17 @@ Sync.on('log', (ws, message) => {
 
 
 Sync.on('config', (ws, {token, tags, platform, hash}) => {
-  console.log(token, tags, hash)
   const ip = ws._socket.remoteAddress.replace(/.*:(.*)/, '$1')
-  // app.get('/:token/:tags', (req, res) => {
-  //   const {token, tags} = req.params
-  //   const {platform='.*', hash=''} = req.query
-  //   console.log({token, tags})
-  //
-  //   const ip = req.ip
-  //
+  const message = {platform, tags, id: ip, status: 'ok', time: new Date(), message: 'connected'}
+
   if (conf.token != token) {
-    // log(`unathorized token:${token}`, ip)
-    return {unathorized: token}
+    message.message = 'unathorized'
+    message.status = 'error'
+    return Server.broadcast('log', message)
   }
+
+  Server.broadcast('node', message)
+  // Server.broadcast('log', message)
 
   const hasTag = tag => tags == 'any' ? true : test(new RegExp(tags), tag.join(','))
 

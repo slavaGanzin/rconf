@@ -124,22 +124,37 @@
       height: 10px;
       border-radius: 50%;
       display: inline-block;
+      animation-name: fadeIn;
+      animation-duration: 300ms;
     }
 
     .status-error {
       background-color: red;
     }
 
+    .error {
+      color: red;
+    }
+
     .status-ok {
       background-color: #00cf00;
+    }
+
+    .ok {
+      color: #00cf00;
     }
 
     .status-inprogress {
       background-color: yellow;
     }
 
+    #log {
+      overflow-y: scroll;
+      overflow-x: hidden;
+    }
     .logLine {
       cursor: pointer;
+      width: 80vw;
     }
 
     .logLine .log {
@@ -149,6 +164,10 @@
 
     .logLine.expanded .log {
       display: block;
+    }
+
+    .vhalf {
+      height: 50vh;
     }
 
     </style>

@@ -13,4 +13,6 @@ ws.on('file:save', () => {})
 
 State.log = []
 ws.on('log', log => State.log.push(log))
-ws.on('log', console.log)
+
+State.nodes = {}
+ws.on('node', n => State.nodes[n.id] = mergeLeft(n, State.nodes[n.id] || {}))
