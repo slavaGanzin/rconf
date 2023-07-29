@@ -7,7 +7,8 @@ import './WebSocket.js'
 import './State.js'
 import {Log} from './Log.js'
 import {Editor as Monaco} from '@monaco-editor/react';
-import Tree from './Tree.js'
+import FileTree from './FileTree.js'
+import NodeTree from './NodeTree.js'
 
 window.Editor = {}
 window.openFile = null
@@ -52,7 +53,10 @@ const MonacoEditor = () => {
 }
 function App() {
   return <>
-      <Tree onClick={x => State.selectedFile = x}/>
+      <div>
+        <FileTree onClick={x => State.selectedFile = x}/>
+        <NodeTree  onClick={x => State.selectedNode = x}/>
+      </div>
       <MonacoEditor/>
       <Log/>
   </>

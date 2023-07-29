@@ -7,10 +7,10 @@ import { GrConfigure  } from "react-icons/gr";
 import { FaGear, FaList, FaRegFolder, FaRegFolderOpen } from "react-icons/fa6";
 import TreeView, { flattenTree } from "react-accessible-treeview";
 
-function DirectoryTreeView({onClick}) {
+function FileTree({onClick}) {
   useObservable('files')
   return (
-    <div>
+    <div className='vhalf' >
       <div className="directory">
         <TreeView
           data={flattenTree({name: '', children: State.files})}
@@ -60,4 +60,4 @@ const FileIcon = ({ lang }) => {
   return Icon({color: lang[1], className: 'icon'})
 };
 
-export default DirectoryTreeView;
+export default FileTree;
