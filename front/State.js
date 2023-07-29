@@ -3,6 +3,9 @@ import {Observable} from './observable'
 window.State = Observable({})
 
 State.files = {}
+State.selectFile = file =>
+  setTimeout(() => State.selectedFile = find(x => x.name == file, State.files), 300)
+
 ws.emit('file:list')
 ws.on('file:list', f => {
   State.files = f

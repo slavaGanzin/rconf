@@ -33,6 +33,7 @@ const onMount = (editor, monaco) => {
       if (file) {
         ws.emit('file:save', { value: '', file })
         ws.emit('file:list', {})
+        State.selectFile(file)
       }
     },
   });
@@ -45,6 +46,20 @@ const onMount = (editor, monaco) => {
       ws.emit('file:list', {})
     },
   });
+
+  editor.addAction({
+    id: "rename file",
+    label: "Rename File",
+    run: function (ed) {
+      const to = prompt('Enter new filename')
+      if (to) {
+        ws.emit('file:rename', {file: State.selectedFile.name, to})
+        ws.emit('file:list', {})
+        State.selectFile(to)
+      }
+    },
+  });
+
 
 
   editor.addAction({

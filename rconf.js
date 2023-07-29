@@ -264,6 +264,14 @@ Server.on('file:delete', (ws, {file}) => {
   fs.unlink(joinPath(DATADIR, file), console.log)
 })
 
+Server.on('file:rename', (ws, {file, to}) => {
+  fs.rename(joinPath(DATADIR, file), joinPath(DATADIR, to), console.log)
+})
+
+Server.on('file:delete', (ws, {file}) => {
+  fs.unlink(joinPath(DATADIR, file), console.log)
+})
+
 Server.on('file:save', (ws, {file, value}) => {
   fs.writeFileSync(joinPath(DATADIR, file), value)
   updateConfig()
