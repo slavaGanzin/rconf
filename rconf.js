@@ -90,7 +90,7 @@ const queryUrl = process.argv[2]
 if (queryUrl) {
   const URL = new (require('url').URL)(queryUrl)
   let [_,token, tags] = split('/', URL.pathname)
-  tags = split(',', tags)
+  tags = split(',', tags||'any')
   require('./wsclient')('ws://'+URL.host+'/Sync', {
     connect: emit => {},
     'config:ask': emit => {
@@ -176,13 +176,6 @@ const express = require('express')
 const app = express()
 const basicAuth = require('express-basic-auth')
 
-
-if (conf?.auth) {
-  app.use([
-    // basicAuth({ users: conf.auth, challenge: true, }),
-    express.static(joinPath(__dirname, 'public'))
-  ])
-}
 
 // app.use(express.json())
 
@@ -341,6 +334,14 @@ Sync.on('config', (ws, {token, tags, platform, hash}) => {
 
 for (const p of ['uncaughtException', 'unhandledRejection', 'warning']) {
   process.on(p, (error) => log({id: 'rconf', message: error.message, status: 'error'}))
+}
+
+
+if (conf?.auth) {
+  app.use([
+    basicAuth({ users: conf.auth, challenge: true, }),
+    express.static(joinPath(__dirname, 'public'))
+  ])
 }
 
 app.listen(14141, () => {
