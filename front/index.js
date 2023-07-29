@@ -18,6 +18,36 @@ const onMount = (editor, monaco) => {
   monaco.editor.defineTheme('theme', rconf)
   monaco.editor.setTheme('theme');
   editor.addAction({
+    id: "Newfile",
+    label: "New File",
+
+    keybindings: [
+      monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyM,
+    ],
+    precondition: null,
+    keybindingContext: null,
+    contextMenuGroupId: "navigation",
+    contextMenuOrder: 1.5,
+    run: function (ed) {
+      const file = prompt('Enter new filename')
+      if (file) {
+        ws.emit('file:save', { value: '', file })
+        ws.emit('file:list', {})
+      }
+    },
+  });
+
+  editor.addAction({
+    id: "deletefile",
+    label: "Delete File",
+    run: function (ed) {
+      ws.emit('file:delete', {file: State.selectedFile.name})
+      ws.emit('file:list', {})
+    },
+  });
+
+
+  editor.addAction({
     id: "save",
     label: "Save",
 

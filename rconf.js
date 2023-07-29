@@ -260,6 +260,10 @@ for (const name of ['Sync', 'Server']) {
 }
 
 
+Server.on('file:delete', (ws, {file}) => {
+  fs.unlink(joinPath(DATADIR, file), console.log)
+})
+
 Server.on('file:save', (ws, {file, value}) => {
   fs.writeFileSync(joinPath(DATADIR, file), value)
   updateConfig()
@@ -275,8 +279,8 @@ Server.on('file:list', ws =>
 )
 
 const log = (message, ws, broadcastNode = false) => {
-  message.ip = ws._socket.remoteAddress.replace(/.*:(.*)/, '$1')
-  if (!message.id) message.id=message.ip
+  if (ws) message.ip = ws._socket.remoteAddress.replace(/.*:(.*)/, '$1')
+  if (ws && !message.id) message.id=message.ip
   message.time = new Date()
   if (message?.json?.status) {
     message.status = message.json.status
@@ -327,6 +331,9 @@ Sync.on('config', (ws, {token, tags, platform, hash}) => {
   return c
 })
 
+for (const p of ['uncaughtException', 'unhandledRejection', 'warning']) {
+  process.on(p, (error) => log({message: error.message, status: 'error'}))
+}
 
 app.listen(14141, () => {
   mapObjIndexed((interfaces, name) => {
