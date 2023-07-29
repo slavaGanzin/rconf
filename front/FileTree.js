@@ -9,6 +9,7 @@ import TreeView, { flattenTree } from "react-accessible-treeview";
 
 function FileTree({onClick}) {
   useObservable('files')
+
   return (
     <div className='vhalf' >
       <div className="directory">

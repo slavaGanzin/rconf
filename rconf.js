@@ -89,11 +89,10 @@ const queryUrl = process.argv[2]
 
 if (queryUrl) {
   const URL = new (require('url').URL)(queryUrl)
-  const [_,token, tags] = split('/', URL.pathname)
+  let [_,token, tags] = split('/', URL.pathname)
+  tags = split(',', tags)
   require('./wsclient')('ws://'+URL.host+'/Sync', {
-    connect: emit => {
-      emit({config: {platform, token, tags, hash: calculateHash(conf)}})
-    },
+    connect: emit => {},
     'config:ask': emit => {
       emit({config: {platform, token, tags, hash: calculateHash(conf)}})
     },
@@ -275,11 +274,23 @@ Server.on('file:list', ws =>
   }}), reject(x => x == '.log', fs.readdirSync(DATADIR))))
 )
 
-Sync.on('disconnect', ws => {
-  const message = {id: ws._socket.remoteAddress.replace(/.*:(.*)/, '$1'), status: 'error', message: 'disconnected', time: new Date()}
-  Server.broadcast('node', message)
+const log = (message, ws, broadcastNode = false) => {
+  message.ip = ws._socket.remoteAddress.replace(/.*:(.*)/, '$1')
+  if (!message.id) message.id=message.ip
+  message.time = new Date()
+  if (message?.json?.status) {
+    message.status = message.json.status
+    delete message.json.status
+  }
+  fs.promises.appendFile(LOGFILE, JSON.stringify(message)+'\r\n')
+  console.log(JSON.stringify(message, null, ' '))
   Server.broadcast('log', message)
-})
+  if (broadcastNode) Server.broadcast('node', message)
+}
+
+Server.on('connect', ws => Sync.broadcast('config:ask', {}))
+Sync.on('connect', ws => ws._emit('config:ask', {}))
+Sync.on('disconnect', ws => log({status: 'error', message: 'disconnected'}, ws, true))
 
 mkdirp(joinPath(DATADIR, '.log'))
 const LOGFILE = joinPath(DATADIR, '.log', (new Date).toISOString().slice(0, 10)+'.json')
@@ -288,17 +299,7 @@ Server.on('log:today', (ws, message) =>
   reject(isEmpty, fs.readFileSync(LOGFILE, 'utf8').split(/$\n/gim)).map(x => JSON.parse(x.replace(/$\n/gim, '')))
 )
 
-Sync.on('log', (ws, message) => {
-  message.ip = ws._socket.remoteAddress.replace(/.*:(.*)/, '$1')
-  message.time = new Date()
-  if (message.json.status) {
-    message.status = message.json.status
-    delete message.json.status
-  }
-  fs.promises.appendFile(LOGFILE, JSON.stringify(message)+'\r\n')
-  console.log(JSON.stringify(message, null, ' '))
-  Server.broadcast('log', message)
-})
+Sync.on('log', (ws, message) => log(message, ws, false))
 
 
 Sync.on('config', (ws, {token, tags, platform, hash}) => {
@@ -308,6 +309,7 @@ Sync.on('config', (ws, {token, tags, platform, hash}) => {
   if (conf.token != token) {
     message.message = 'unathorized'
     message.status = 'error'
+    Server.broadcast('node', message)
     return Server.broadcast('log', message)
   }
 

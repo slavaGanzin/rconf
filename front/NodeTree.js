@@ -4,7 +4,7 @@ import TreeView, { flattenTree } from "react-accessible-treeview"
 function NodeTree({onClick}) {
   useObservable('nodes')
   return (
-    <div className='vhalf'>
+    <div className='vhalf fadeIn'>
       <div className="directory">
         <TreeView
           data={flattenTree({name: '', children: values(map(x => ({name: x.id, metadata: x}), State.nodes))})}
@@ -19,8 +19,7 @@ function NodeTree({onClick}) {
           }) => (
             <div key={element.id} {...getNodeProps()} style={{ paddingLeft: 20 * (level - 1) }}>
               <div className={'status-'+element.metadata.status}/>
-              {console.log(element)}
-              {element.name}
+              {element.name} {(element.metadata.tags||[]).map(x => `#${x}`)}
               {
                 // isBranch
                 // ? <>{element.name}</>

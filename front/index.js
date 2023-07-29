@@ -45,6 +45,7 @@ const MonacoEditor = () => {
   return <Monaco
     height="100vh"
     theme="vs-dark"
+    className='fadeIn'
     path={State.selectedFile?.name}
     defaultLanguage={State.selectedFile?.metadata?.language[0]}
     defaultValue={State.selectedFile?.metadata?.value}

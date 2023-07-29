@@ -5,14 +5,14 @@ export const Log = () => {
     <div id='logList'>
       {reverse(State.log).map(x => {
         let diff = []
-        if (x.json.diff) {
+        if (x?.json?.diff) {
           diff = x.json.diff.map(x => {
             return <div>{x.line} <span className={x.add?'ok':'error'}> {x.add ? '+' : '-'} {x.add || x.remove}</span></div>
           })
         }
 
         return <div key={x.time} className='fadeIn logLine' onClick={x => x.currentTarget.toggleClass('expanded')}>
-          <summary><div className={'status-'+x.status}/> {x.ip || x.id} {x.service}: {x.message}</summary>
+          <summary><div className={'status-'+x.status}/> {x.ip || x.id} {x.service ? ` ${x.service}:` : ''}{x.message}</summary>
           <div className='log fadeIn'>{
             values(mapObjIndexed((v,k) => {
               if (k == 'diff') return

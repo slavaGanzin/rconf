@@ -19,4 +19,6 @@ ws.on('log:today', logs => {
 ws.emit('log:today')
 
 State.nodes = {}
-ws.on('node', n => State.nodes[n.id] = mergeLeft(n, State.nodes[n.id] || {}))
+ws.on('node', n => {
+  State.nodes[n.id] = mergeLeft(n, State.nodes[n.id] || {})
+})
