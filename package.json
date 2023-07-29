@@ -17,7 +17,6 @@
     "express-basic-auth": "^1.2.1",
     "express-ws": "^5.0.2",
     "needle": "^3.2.0",
-    "node-which": "^1.0.0",
     "node-yaml": "^4.0.1",
     "prop-types": "^15.8.1",
     "ramda": "0.28",
@@ -26,6 +25,7 @@
     "react-dom": "^18.2.0",
     "react-icons": "^4.10.1",
     "throttle-debounce": "^5.0.0",
+    "which": "^3.0.1",
     "yaml": "^2.3.1"
   }
 }
