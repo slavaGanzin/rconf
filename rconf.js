@@ -74,7 +74,6 @@ global.DATADIR = {
 
 const run = (command) => new Promise((r,j) => exec(command, (error, stdout, stderr) => {
   if (error) return r({stdout, stderr, status: 'error'})
-  console.log(error)
   r({stdout, stderr, status: 'ok'})
 }))
 
@@ -235,7 +234,7 @@ for (const name of ['Sync', 'Server']) {
 //TODO: check permissions!
 
 
-      console.log(event, data, pluck('user', global[name].sockets))
+      // console.log(event, data, pluck('user', global[name].sockets))
       global[name].sockets.map(socket => socket._emit(event, data))
     }
   }
@@ -252,7 +251,6 @@ for (const name of ['Sync', 'Server']) {
       }
     }
 
-    console.log(ws)
     ws.on('message', global[name].onMessage(ws))
     ws.on('close', () => global[name].events.disconnect.map(x => x(ws)))
     global[name].sockets.push(ws)
@@ -274,7 +272,7 @@ Server.on('file:list', ws =>
   sortBy(x => x.name == 'rconf.yaml' ? 'A' : x.name[0], map(name => ({name, metadata: {
     language: detectLanguage(name),
     value: fs.readFileSync(joinPath(DATADIR, name), 'utf8')
-  }}), fs.readdirSync(DATADIR)))
+  }}), reject(x => x == '.log', fs.readdirSync(DATADIR))))
 )
 
 Sync.on('disconnect', ws => {
@@ -283,6 +281,13 @@ Sync.on('disconnect', ws => {
   Server.broadcast('log', message)
 })
 
+mkdirp(joinPath(DATADIR, '.log'))
+const LOGFILE = joinPath(DATADIR, '.log', (new Date).toISOString().slice(0, 10)+'.json')
+
+Server.on('log:today', (ws, message) =>
+  reject(isEmpty, fs.readFileSync(LOGFILE, 'utf8').split(/$\n/gim)).map(x => JSON.parse(x.replace(/$\n/gim, '')))
+)
+
 Sync.on('log', (ws, message) => {
   message.ip = ws._socket.remoteAddress.replace(/.*:(.*)/, '$1')
   message.time = new Date()
@@ -290,6 +295,7 @@ Sync.on('log', (ws, message) => {
     message.status = message.json.status
     delete message.json.status
   }
+  fs.promises.appendFile(LOGFILE, JSON.stringify(message)+'\r\n')
   console.log(JSON.stringify(message, null, ' '))
   Server.broadcast('log', message)
 })
