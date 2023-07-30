@@ -71,4 +71,12 @@ const calculateHash = (obj) => {
 
 const coerceArray = x => unless(is(Array), of, x)
 
-module.exports = {getDiff, every, detectLanguage, joinPath, run, calculateHash, coerceArray, which, mkdirp, dirname, fs, os}
+const getIPV4Interfaces = (match = '.*') =>
+  reject(isNil, mapObjIndexed((interfaces, name)=> {
+    const interface = find(x => x.family == 'IPv4' && !x.internal && new RegExp(match).test(name), interfaces)
+    if (!interface) return null
+    interface.name = name
+    return interface
+  }, os.networkInterfaces()))
+
+module.exports = {getDiff, every, detectLanguage, joinPath, run, calculateHash, coerceArray, which, mkdirp, dirname, fs, os, getIPV4Interfaces}

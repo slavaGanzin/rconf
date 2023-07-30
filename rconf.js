@@ -8,15 +8,14 @@ for (const f in require('ramda'))
 
 global.conf = null
 
-const {getDiff, every, detectLanguage, joinPath, run, calculateHash, coerceArray, fs, os} = require('./helpers')
+const {getDiff, every, detectLanguage, joinPath, run, calculateHash, coerceArray, fs, os, getIPV4Interfaces} = require('./helpers')
 const {updateConfig, hasConfig} = require('./config')
 
 global.platform = [os.hostname(), os.arch(), os.platform(), os.release(), os.version()].join('-').replace(/#/gim,'')
-console.log(`platform:\n  ${platform}\n`)
+// console.log(`platform:\n  ${platform}\n`)
 
 if (process.argv[2]) return require('./client')(process.argv[2])
 
-every(1000, updateConfig)
 
 const express = require('express')
 const app = express()
@@ -110,14 +109,11 @@ const launchServer = () => {
       express.static(joinPath(__dirname, 'public'))
     ])
   }
-
-  app.listen(14141, () => {
-    mapObjIndexed((interfaces, name) => {
-      const interface = find(x => x.family == 'IPv4' && !x.internal, interfaces)
-      if (!interface) return
-      console.log(`"${name}" network:\n  GUI:\n    http://${interface.address}:14141  \n  sync config command:\n    sudo rconf http://${interface.address}:14141/${conf.token}/any\n`)
-    }, os.networkInterfaces())
-  })
+  values(getIPV4Interfaces(conf.networks.join('|'))).map(interface =>
+    app.listen(14141, interface.address, () => {
+      console.log(`${interface.name}:\n  GUI:\n    http://${interface.address}:14141  \n  sync config command:\n    sudo rconf http://${interface.address}:14141/${conf.token}/any\n`)
+    })
+  )
 }
 
 hasConfig().then(launchServer)

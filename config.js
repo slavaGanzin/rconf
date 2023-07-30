@@ -1,4 +1,4 @@
-const {getDiff, every, detectLanguage, joinPath, run, calculateHash, coerceArray, mkdirp} = require('./helpers')
+const {getDiff, every, detectLanguage, joinPath, run, calculateHash, coerceArray, mkdirp, os, getIPV4Interfaces} = require('./helpers')
 const {dirname} = require('path')
 const fs = require('fs')
 const yaml = require('yaml')
@@ -35,20 +35,39 @@ const hasConfig = async () => {
   try {
     fs.statSync(confFile)
   } catch (e) {
-    await generateConfig()
+    await generateServerConfig()
   }
 
-  updateConfig()
+  every(1000, updateConfig)
   return Promise.resolve()
 }
 
-const generateConfig = async () => {
-    fs.writeFileSync(confFile, `token: ${calculateHash(Math.random())}
-  auth:
-    admin: admin
+const generateServerConfig = () => {
+  const networks = map(x => {
+    x.name = `${x.name} [${x.cidr}]`
+    x.checked = true
+    return x
+  }, values(getIPV4Interfaces()))
 
-  services: {}
-  `)
+  const token = calculateHash(Math.random())
+
+  return inquirer
+    .prompt([
+      {type: 'checkbox', name: 'networks', message: 'Select networks in which you want to share your config:\n', choices: networks, validate: v => !isEmpty(v)},
+      {type: 'input', name: 'user', message: 'Web GUI username:', default: 'admin'},
+      {type: 'input', name: 'password', message: 'Web GUI password:', default: 'admin'},
+      {type: 'input', name: 'token', message: 'Remote sync token:', default: token},
+    ]).then(({networks, user, password, token}) => {
+
+      fs.writeFileSync(confFile, `token: ${token}
+networks:
+  ${join('\n  ', map(x => replace(/^(.*)\s+.*/, '- $1', x), networks))}
+auth:
+  ${user}: ${password}
+
+services: {}`)
+})
 }
+
 
 module.exports = {updateConfig, hasConfig}

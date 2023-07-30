@@ -4,6 +4,7 @@ module.exports = queryUrl => {
   const URL = new (require('url').URL)(queryUrl)
   let [_,token, tags] = split('/', URL.pathname)
   tags = split(',', tags||'any')
+  console.log(URL, token, tags)
   require('./ws').connect('ws://'+URL.host+'/Sync', {
     connect: emit => {},
     'config:ask': emit => {
