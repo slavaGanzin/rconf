@@ -1,17 +1,14 @@
 #!/usr/bin/env node-dev
 
-const os = require('os')
-const fs = require('fs')
 const decode = JSON.parse
 const encode = JSON.stringify
-const diff = require('diff')
 
 for (const f in require('ramda'))
   global[f] = require('ramda')[f]
 
 global.conf = null
 
-const {getDiff, every, detectLanguage, joinPath, run, calculateHash, coerceArray} = require('./helpers')
+const {getDiff, every, detectLanguage, joinPath, run, calculateHash, coerceArray, fs, os} = require('./helpers')
 const {updateConfig, hasConfig} = require('./config')
 
 global.platform = [os.hostname(), os.arch(), os.platform(), os.release(), os.version()].join('-').replace(/#/gim,'')

@@ -5,6 +5,7 @@ const crypto = require('crypto')
 const mkdirp = require('mkdirp')
 const which = require('which')
 const {dirname} = require('path')
+const diff = require('diff')
 
 const APPNAME = 'rconf'
 
@@ -70,4 +71,4 @@ const calculateHash = (obj) => {
 
 const coerceArray = x => unless(is(Array), of, x)
 
-module.exports = {getDiff, every, detectLanguage, joinPath, run, calculateHash, coerceArray, which, mkdirp, dirname, fs}
+module.exports = {getDiff, every, detectLanguage, joinPath, run, calculateHash, coerceArray, which, mkdirp, dirname, fs, os}
