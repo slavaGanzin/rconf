@@ -1,4 +1,4 @@
-# rconf
+== rconf ==
 
 rconf is configuration server with web UI that will sync service configuration to remote machines instantly.
 ![](./docs/ui.png)
@@ -8,7 +8,7 @@ rconf is configuration server with web UI that will sync service configuration t
 - single binary, no deps
 - one line installation `curl https://i.jpillora.com/slavaGanzin/rconf! | bash`
 
-### quick start
+===quick start===
 **install rconf on server machine**
 ```bash
 curl https://i.jpillora.com/slavaGanzin/rconf! | bash
@@ -67,8 +67,9 @@ Hello world!
 #### join all devices in single vpn network using zerotier
 ```yaml
 services:
-  vpn:
+  zerotier-linux:
     tag: zerotier-network1
+    platform: linux
     install:
       zerotier-cli: curl -s https://install.zerotier.com | sudo bash
     command: zerotier-cli join network1
