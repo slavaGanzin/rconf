@@ -111,9 +111,10 @@ const launchServer = () => {
       express.static(joinPath(__dirname, 'public'))
     ])
   }
+  console.log('Install on remote machine:\n  curl https://i.jpillora.com/slavaGanzin/rconf! | bash')
   values(getIPV4Interfaces('^'+conf.networks.join('$|^')+'$')).map(interface =>
     app.listen(14141, interface.address, () => {
-      console.log(`${interface.name}:\n  GUI:\n    http://${interface.address}:14141  \n  sync config command:\n    sudo rconf http://${interface.address}:14141/${conf.token}\n`)
+      console.log(`${interface.name}:\n  GUI:\n    http://${interface.address}:14141  \n  sync config command:\n    rconf http://${interface.address}:14141/${conf.token}\n`)
     })
   )
 }

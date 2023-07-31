@@ -74,8 +74,6 @@ const run = async (commands, verbose=true) => {
     }))
   }
 
-  console.log(last)
-
   return last
 }
 

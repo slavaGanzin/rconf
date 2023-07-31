@@ -6,7 +6,6 @@ module.exports = queryUrl => {
   let [_,token] = split('/', URL.pathname)
   let tags = process.argv[3] ? split(',', process.argv[3]) : null
   let id = process.argv[4]
-  console.log(tags, id)
 
   require('./ws').connect('ws://'+URL.host+'/Sync', {
     connect: emit => {},
