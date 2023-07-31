@@ -57,7 +57,8 @@ const generateServerConfig = () => {
       {type: 'input', name: 'user', message: 'Web GUI username:', default: 'admin'},
       {type: 'input', name: 'password', message: 'Web GUI password:', default: 'admin'},
       {type: 'input', name: 'token', message: 'Remote sync token:', default: token},
-    ]).then(({networks, user, password, token}) => {
+      {type: 'confirm', name: 'daemonize', message: 'Daemonize with systemd?', default: true},
+    ]).then(({networks, user, password, token, daemonize}) => {
 
       fs.writeFileSync(confFile, `token: ${token}
 networks:
@@ -66,6 +67,8 @@ auth:
   ${user}: ${password}
 
 services: {}`)
+
+  if (daemonize) return generateSystemdService()
 })
 }
 
@@ -74,7 +77,39 @@ const generateClientConfig = tags => {
     .prompt([
       {type: 'input', name: 'id', message: 'Node id:', default: os.hostname()},
       {type: 'checkbox', name: 'tags', message: 'Select tags to sync:\n', choices: tags, validate: v => !isEmpty(v)},
+      {type: 'confirm', name: 'systemd', message: 'Daemonize with systemd?', default: true},
     ])}
+
+const generateSystemdService = (name = APPNAME, command=process.argv[0]) => {
+  const SYSTEMD = process.env.USER == 'root'
+    ? `/etc/systemd/system/${name}.service`
+    : `/home/${process.env.USER}/.config/systemd/user/${name}.service`
+
+  const u = process.env.USER == 'root' ? '' : '--user'
+  mkdirp(dirname(SYSTEMD))
+
+  fs.promises.writeFile(SYSTEMD, `
+[Unit]
+Description=${require('./package.json').description}
+
+[Service]
+Type=simple
+ExecStart=${command}
+LimitNOFILE=infinity
+Restart=always
+SyslogIdentifier=${name}
+
+[Install]
+WantedBy=default.target
+  `).then(x => {
+    run([
+      `systemctl ${u} daemon-reload`,
+      `systemctl enable ${u} --now ${name}`,
+      `sleep 3`,
+      `journalctl --output cat ${u} -u  ${name}.service --since '1 minute ago'`
+    ], true).finally(() => process.exit())
+  }).catch(console.error)
+}
 
 
 module.exports = {updateConfig, hasConfig, generateClientConfig}
