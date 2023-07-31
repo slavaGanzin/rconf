@@ -60,10 +60,12 @@ const detectLanguage = file => {
 }
 
 const run = async (commands, verbose=true) => {
+  let last = Promise.resolve()
+
   for (const command of coerceArray(commands)) {
     const spinner = Spinner({text: 'run: '+command})
     if (verbose) spinner.start()
-    await new Promise((r,j) => exec(command, (error, stdout, stderr) => {
+    last = await new Promise((r,j) => exec(command, (error, stdout, stderr) => {
       if (verbose) {
         spinner[error ? 'fail' : 'succeed']()
         console.log(stdout, stderr)
@@ -71,6 +73,10 @@ const run = async (commands, verbose=true) => {
       r({stdout, stderr, status: error ? 'error' : 'ok'})
     }))
   }
+
+  console.log(last)
+
+  return last
 }
 
 const calculateHash = (obj) => {

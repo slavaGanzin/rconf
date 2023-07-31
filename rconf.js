@@ -61,7 +61,6 @@ Server.on('file:delete', (ws, {file}) => {
 Server.on('file:save', (ws, {file, value}) => {
   fs.writeFileSync(joinPath(DATADIR, file), value)
   updateConfig()
-  console.log(conf.services.reticulum.command)
   Sync.broadcast('config:ask', {})
   return {'status': 'saved'}
 })

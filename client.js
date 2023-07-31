@@ -4,8 +4,9 @@ const {generateClientConfig} = require('./config')
 module.exports = queryUrl => {
   const URL = new (require('url').URL)(queryUrl)
   let [_,token] = split('/', URL.pathname)
-  let tags = null
-  let id = null
+  let tags = process.argv[3] ? split(',', process.argv[3]) : null
+  let id = process.argv[4]
+  console.log(tags, id)
 
   require('./ws').connect('ws://'+URL.host+'/Sync', {
     connect: emit => {},
@@ -13,7 +14,8 @@ module.exports = queryUrl => {
       if (tags) emit({config: {id, platform, token, tags, hash: calculateHash(conf)}})
     },
     tags: async (emit, serverTags) => {
-      if (!tags) await generateClientConfig(serverTags).then(x => {
+      if (isEmpty(serverTags)) serverTags = ['default']
+      if (!tags) await generateClientConfig(serverTags, queryUrl).then(x => {
         tags = x.tags
         id = x.id
       })

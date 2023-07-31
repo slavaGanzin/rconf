@@ -72,15 +72,19 @@ services: {}`)
 })
 }
 
-const generateClientConfig = tags => {
+const generateClientConfig = (tags, url) => {
   return inquirer
     .prompt([
       {type: 'input', name: 'id', message: 'Node id:', default: os.hostname()},
       {type: 'checkbox', name: 'tags', message: 'Select tags to sync:\n', choices: tags, validate: v => !isEmpty(v)},
-      {type: 'confirm', name: 'systemd', message: 'Daemonize with systemd?', default: true},
-    ])}
+      {type: 'confirm', name: 'daemonize', message: 'Daemonize with systemd?', default: true},
+    ]).then(async x => {
+      if (x.daemonize) await generateSystemdService(APPNAME, `${process.argv[0]} ${url} ${x.tags} ${x.id}`)
+      return x
+    })
+}
 
-const generateSystemdService = (name = APPNAME, command=process.argv[0]) => {
+const generateSystemdService = (name = APPNAME+'d', command=process.argv[0]) => {
   const SYSTEMD = process.env.USER == 'root'
     ? `/etc/systemd/system/${name}.service`
     : `/home/${process.env.USER}/.config/systemd/user/${name}.service`
