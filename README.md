@@ -61,3 +61,15 @@ $ rconf "http://192.168.1.85:14141/ea9b50e5de7e17e0ff38f0b7808917acbbe87ca6ce46e
 ✔ run: echo "Hello world!"
 Hello world!
 ```
+
+### Cookbook
+
+#### join all devices in single vpn network using zerotier
+```yaml
+services:
+  vpn:
+    tag: zerotier-network1
+    install:
+      zerotier-cli: curl -s https://install.zerotier.com | sudo bash
+    command: zerotier-cli join network1
+```
