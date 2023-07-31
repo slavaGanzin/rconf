@@ -23,7 +23,7 @@ require('./ws').initWSServer(app)
 
 const LOGFILE = joinPath(DATADIR, '.log', (new Date).toISOString().slice(0, 10)+'.json')
 const log = (message, ws, broadcastNode = false) => {
-  if (ws) message.ip = ws._socket.remoteAddress.replace(/.*:(.*)/, '$1')
+  if (ws?._socket?.remoteAddress) message.ip = ws._socket.remoteAddress.replace(/.*:(.*)/, '$1')
   if (ws && !message.id) message.id=message.ip
   message.time = new Date()
   if (message?.json?.status) {
@@ -43,7 +43,6 @@ for (const p of ['uncaughtException', 'unhandledRejection', 'warning']) {
 Server.on('connect', ws => Sync.broadcast('config:ask', {}))
 Sync.on('connect', ws => {
   ws._emit('tags', uniq(flatten(values(pluck('tag', conf.services)))))
-  ws._emit('config:ask', {})
 })
 Sync.on('disconnect', ws => log({status: 'error', message: 'disconnected'}, ws, true))
 
@@ -62,6 +61,7 @@ Server.on('file:delete', (ws, {file}) => {
 Server.on('file:save', (ws, {file, value}) => {
   fs.writeFileSync(joinPath(DATADIR, file), value)
   updateConfig()
+  console.log(conf.services.reticulum.command)
   Sync.broadcast('config:ask', {})
   return {'status': 'saved'}
 })
