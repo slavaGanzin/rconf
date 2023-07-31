@@ -1,14 +1,16 @@
-== rconf ==
+# rconf
 
 rconf is configuration server with web UI that will sync service configuration to remote machines instantly.
+
+<!-- toc -->
+- [Quick start](#quick-start)
+- [Cookbook](#cookbook)
+  * [join all devices in single vpn network using zerotier](#join-all-devices-in-single-vpn-network-using-zerotier)
+<!-- tocstop -->
 ![](./docs/ui.png)
 
-- partial syncronization for different node roles
-- cross-platform configuration
-- single binary, no deps
-- one line installation `curl https://i.jpillora.com/slavaGanzin/rconf! | bash`
 
-===quick start===
+### Quick start
 **install rconf on server machine**
 ```bash
 curl https://i.jpillora.com/slavaGanzin/rconf! | bash
