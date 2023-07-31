@@ -1,15 +1,10 @@
 const { map, mapObjIndexed } = require('ramda')
+const { Spinner } = require('./helpers')
 const WS = require('ws')
 const decode = JSON.parse
 const encode = JSON.stringify
 
-const ora = require('ora')
-
-const spinner = ora({
-  text: 'connecting',
-  color: 'green',
-  spinner: {interval: 380, frames: [ "⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷" ] }
-})
+const spinner = Spinner()
 
 const connect = (host, events) => {
   spinner.start()

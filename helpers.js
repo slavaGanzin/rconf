@@ -7,8 +7,9 @@ const which = require('which')
 const {dirname} = require('path')
 const diff = require('diff')
 const yaml = require('yaml')
+const ora = require('ora')
 
-const APPNAME = 'rconf'
+global.APPNAME = 'rconf'
 
 const joinPath = require('path').join
 
@@ -58,11 +59,19 @@ const detectLanguage = file => {
   return (languages.find(x => x[2].test(file)) || ['yaml', 'orange'])
 }
 
-
-const run = (command) => new Promise((r,j) => exec(command, (error, stdout, stderr) => {
-  if (error) return r({stdout, stderr, status: 'error'})
-  r({stdout, stderr, status: 'ok'})
-}))
+const run = async (commands, verbose=true) => {
+  for (const command of coerceArray(commands)) {
+    const spinner = Spinner({text: 'run: '+command})
+    if (verbose) spinner.start()
+    await new Promise((r,j) => exec(command, (error, stdout, stderr) => {
+      if (verbose) {
+        spinner[error ? 'fail' : 'succeed']()
+        console.log(stdout, stderr)
+      }
+      r({stdout, stderr, status: error ? 'error' : 'ok'})
+    }))
+  }
+}
 
 const calculateHash = (obj) => {
   const hash = crypto.createHash('sha256')
@@ -85,4 +94,11 @@ const pp = (x) => {
   return x
 }
 
-module.exports = {getDiff, every, detectLanguage, joinPath, run, calculateHash, coerceArray, which, mkdirp, dirname, fs, os, getIPV4Interfaces, pp}
+const Spinner = compose(ora, mergeRight({
+  text: 'connecting',
+  color: 'green',
+  spinner: {interval: 380, frames: [ "⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷" ] }
+}))
+
+
+module.exports = {getDiff, every, detectLanguage, joinPath, run, calculateHash, coerceArray, which, mkdirp, dirname, fs, os, getIPV4Interfaces, pp, Spinner}
