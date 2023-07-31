@@ -25,7 +25,7 @@ module.exports = queryUrl => {
       conf = update
 
       const log = (service, message, json) => {
-        console.log({service, message, json})
+        // console.log({service, message, json})
         emit({log: {message, service, json, id}})
       }
 

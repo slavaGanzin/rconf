@@ -54,20 +54,24 @@ const generateServerConfig = () => {
   return inquirer
     .prompt([
       {type: 'checkbox', name: 'networks', message: 'Select networks will share your config:\n', choices: networks, validate: v => !isEmpty(v)},
-      {type: 'input', name: 'user', message: 'Web GUI username:', default: 'admin'},
-      {type: 'input', name: 'password', message: 'Web GUI password:', default: 'admin'},
+      {type: 'input', name: 'user', message: 'Web UI username:', default: 'admin'},
+      {type: 'input', name: 'password', message: 'Web UI password:', default: 'admin'},
       {type: 'input', name: 'token', message: 'Remote sync token:', default: token},
       {type: 'confirm', name: 'daemonize', message: 'Daemonize with systemd?', default: true},
-    ]).then(({networks, user, password, token, daemonize}) => {
+      {type: 'confirm', name: 'openUI', message: 'Open UI?', default: true},
+    ]).then(({networks, user, password, token, daemonize, openUI}) => {
+
+      const networkNames = map(x => replace(/^(.*)\s+.*/, '$1', x), networks)
 
       fs.writeFileSync(confFile, `token: ${token}
 networks:
-  ${join('\n  ', map(x => replace(/^(.*)\s+.*/, '- $1', x), networks))}
+  ${join('\n  ', map(x => `- ${x}`, networkNames))}
 auth:
   ${user}: ${password}
 
 services: {}`)
 
+  // if (openUI) runopen('http://'+head(values(getIPV4Interfaces('^'+networkNames.join('$|^')+'$'))).address+':14141')
   if (daemonize) return generateSystemdService()
 })
 }
