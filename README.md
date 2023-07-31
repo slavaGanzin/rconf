@@ -42,8 +42,8 @@ wlp0s20f3:
 chromium http://192.168.1.85:14141
 ```
 
-**edit rconf.yaml in web UI**
-uncomment services key: select commented lines and press CTRL+/
+**uncomment services key in rconf.yaml using web UI**
+*select commented lines and press CTRL+/*
 
 ```yaml
 services:
