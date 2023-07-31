@@ -6,6 +6,7 @@ const mkdirp = require('mkdirp')
 const which = require('which')
 const {dirname} = require('path')
 const diff = require('diff')
+const yaml = require('yaml')
 
 const APPNAME = 'rconf'
 
@@ -79,4 +80,9 @@ const getIPV4Interfaces = (match = '.*') =>
     return interface
   }, os.networkInterfaces()))
 
-module.exports = {getDiff, every, detectLanguage, joinPath, run, calculateHash, coerceArray, which, mkdirp, dirname, fs, os, getIPV4Interfaces}
+const pp = (x) => {
+  console.log(yaml.stringify(x))
+  return x
+}
+
+module.exports = {getDiff, every, detectLanguage, joinPath, run, calculateHash, coerceArray, which, mkdirp, dirname, fs, os, getIPV4Interfaces, pp}

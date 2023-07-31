@@ -8,7 +8,7 @@ for (const f in require('ramda'))
 
 global.conf = null
 
-const {getDiff, every, detectLanguage, joinPath, run, calculateHash, coerceArray, fs, os, getIPV4Interfaces} = require('./helpers')
+const {pp, getDiff, every, detectLanguage, joinPath, run, calculateHash, coerceArray, fs, os, getIPV4Interfaces} = require('./helpers')
 const {updateConfig, hasConfig} = require('./config')
 
 global.platform = [os.hostname(), os.arch(), os.platform(), os.release(), os.version()].join('-').replace(/#/gim,'')
@@ -48,15 +48,15 @@ Sync.on('connect', ws => {
 Sync.on('disconnect', ws => log({status: 'error', message: 'disconnected'}, ws, true))
 
 Server.on('file:delete', (ws, {file}) => {
-  fs.unlink(joinPath(DATADIR, file), console.log)
+  fs.unlink(joinPath(DATADIR, file), x => {})
 })
 
 Server.on('file:rename', (ws, {file, to}) => {
-  fs.rename(joinPath(DATADIR, file), joinPath(DATADIR, to), console.log)
+  fs.rename(joinPath(DATADIR, file), joinPath(DATADIR, to), x => {})
 })
 
 Server.on('file:delete', (ws, {file}) => {
-  fs.unlink(joinPath(DATADIR, file), console.log)
+  fs.unlink(joinPath(DATADIR, file), x => {})
 })
 
 Server.on('file:save', (ws, {file, value}) => {
