@@ -3,12 +3,25 @@ const WS = require('ws')
 const decode = JSON.parse
 const encode = JSON.stringify
 
+const ora = require('ora')
+
+const spinner = ora({
+  text: 'connecting',
+  color: 'green',
+  spinner: {interval: 380, frames: [ "⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷" ] }
+})
+
 const connect = (host, events) => {
-  console.log({connect: host})
+  spinner.start()
+  // console.log({connect: host})
 
   let ws = new WS(host, { rejectUnauthorized: false })
   ws.on('error', error => {
-    console.error(error)
+    if (error.code == 'ECONNREFUSED') {
+      spinner.text = 'no connection'
+      spinner.color = 'red'
+    } else
+      console.error(error)
     ws.onclose()
   })
 
@@ -21,7 +34,7 @@ const connect = (host, events) => {
   ws.onclose = once(() => {
     // clearInterval(pingInterval)
     // clearInterval(updateTimeout.timeout)
-    console.log(`disconnected ${host}`)
+    // console.log(`disconnected ${host}`)
     events.disconnect && events.disconnect(emit)
     setTimeout(() => connect(host, events), 1000)
   })
@@ -33,7 +46,8 @@ const connect = (host, events) => {
   // // updateTimeout.timeout = updateTimeout(60000)
 
   ws.on('open', function open() {
-    console.log(`connected ${host}`)
+    // console.log(`connected ${host}`)
+    spinner.stop()
     events.connect && events.connect(emit)
     // updateTimeout(10000)
   })
@@ -41,7 +55,7 @@ const connect = (host, events) => {
   ws.on('message', function message(data) {
     // updateTimeout(10000)
     data = decode(data)
-    console.log(data)
+    // console.log(data)
     for (const k of Object.keys(data)) {
       if (!events[k]) console.error(`no handler for ${k}`)
       events[k](emit, data[k])

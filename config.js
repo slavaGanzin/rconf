@@ -14,7 +14,7 @@ const updateConfig = () => {
 
   mapObjIndexed((v, k) => {
      v.name = v.name || k
-     v.tag = coerceArray(v.tag || ['any'])
+     v.tag = coerceArray(v.tag || ['default'])
      v.platform = coerceArray(v.platform || ['.*'])
      v.files = mapObjIndexed((f, name) => {
        if (is(String, f)) f = {path: f}
@@ -53,7 +53,7 @@ const generateServerConfig = () => {
 
   return inquirer
     .prompt([
-      {type: 'checkbox', name: 'networks', message: 'Select networks in which you want to share your config:\n', choices: networks, validate: v => !isEmpty(v)},
+      {type: 'checkbox', name: 'networks', message: 'Select networks will share your config:\n', choices: networks, validate: v => !isEmpty(v)},
       {type: 'input', name: 'user', message: 'Web GUI username:', default: 'admin'},
       {type: 'input', name: 'password', message: 'Web GUI password:', default: 'admin'},
       {type: 'input', name: 'token', message: 'Remote sync token:', default: token},
@@ -69,5 +69,12 @@ services: {}`)
 })
 }
 
+const generateClientConfig = tags => {
+  return inquirer
+    .prompt([
+      {type: 'input', name: 'id', message: 'Node id:', default: os.hostname()},
+      {type: 'checkbox', name: 'tags', message: 'Select tags to sync:\n', choices: tags, validate: v => !isEmpty(v)},
+    ])}
 
-module.exports = {updateConfig, hasConfig}
+
+module.exports = {updateConfig, hasConfig, generateClientConfig}
