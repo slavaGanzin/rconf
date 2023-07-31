@@ -61,7 +61,7 @@ const generateServerConfig = () => {
       {type: 'input', name: 'password', message: 'Web UI password:', default: 'admin'},
       {type: 'input', name: 'token', message: 'Remote sync token:', default: token},
       {type: 'confirm', name: 'daemonize', message: 'Daemonize with systemd?', default: true},
-      {type: 'confirm', name: 'openUI', message: 'Open UI?', default: true},
+      // {type: 'confirm', name: 'openUI', message: 'Open UI?', default: true},
     ]).then(({networks, user, password, token, daemonize, openUI}) => {
 
       const networkNames = map(x => replace(/^(.*)\s+.*/, '$1', x), networks)
@@ -72,7 +72,22 @@ networks:
 auth:
   ${user}: ${password}
 
-services: {}`)
+#services:
+#   #service name
+#   hello:
+#     #will work only on machines that selected tag "test" for syncronization
+#     tag: test
+#     #will work only on linux machines
+#     platform: linux
+#     files:
+#       #local file hello.sh will be copied to /usr/local/bin/hello.sh on remote machine
+#       hello.sh: /usr/local/bin/hello.sh
+#     install:
+#       #if running \`which hello.sh\` will fail on remote machine - apply \`chmod\`
+#       hello.sh: chmod +x /usr/local/bin/hello.sh
+#     #command that will rerun on every update of configuration files
+#     command: hello.sh world
+`)
 
   // if (openUI) runopen('http://'+head(values(getIPV4Interfaces('^'+networkNames.join('$|^')+'$'))).address+':14141')
   if (daemonize) return generateSystemdService()

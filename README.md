@@ -42,13 +42,33 @@ wlp0s20f3:
 chromium http://192.168.1.85:14141
 ```
 
-**edit config in web UI**
+**edit rconf.yaml in web UI**
+uncomment services key: select commented lines and press CTRL+/
+
 ```yaml
-services: {}
-# change to
 services:
+  #service name
   hello:
-    command: echo "Hello world!"
+    #will work only on machines that selected tag "test" for syncronization
+    tag: test
+    #will work only on linux machines
+    platform: linux
+    files:
+      #local file hello.sh will be copied to /usr/local/bin/hello.sh on remote machine
+      hello.sh: /usr/local/bin/hello.sh
+    install:
+      #if running \`which hello.sh\` will fail on remote machine - apply \`chmod\`
+      hello.sh: chmod +x /usr/local/bin/hello.sh
+    #command that will rerun on every update of configuration files
+    command: hello.sh world
+```
+*Press CTLR+S to save!*
+
+**edit hello.sh in Web ui**
+```bash
+#!/usr/bin/env bash
+
+echo "Hello $1!"
 ```
 *Press CTLR+S to save!*
 
@@ -58,9 +78,9 @@ $ rconf "http://192.168.1.85:14141/ea9b50e5de7e17e0ff38f0b7808917acbbe87ca6ce46e
 
 ? Node id: node1
 ? Select tags to sync:
- default
+ test
 ? Daemonize with systemd? No
-✔ run: echo "Hello world!"
+✔ run: hello.sh world
 Hello world!
 ```
 
