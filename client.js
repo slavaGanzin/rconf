@@ -1,14 +1,23 @@
 const {getDiff, every, detectLanguage, joinPath, run, calculateHash, coerceArray, which, mkdirp, dirname, fs} = require('./helpers')
+const {generateClientConfig} = require('./config')
 
 module.exports = queryUrl => {
   const URL = new (require('url').URL)(queryUrl)
-  let [_,token, tags] = split('/', URL.pathname)
-  tags = split(',', tags||'any')
-  console.log(URL, token, tags)
+  let [_,token] = split('/', URL.pathname)
+  let tags = null
+  let id = null
+
   require('./ws').connect('ws://'+URL.host+'/Sync', {
     connect: emit => {},
     'config:ask': emit => {
-      emit({config: {platform, token, tags, hash: calculateHash(conf)}})
+      if (tags) emit({config: {id, platform, token, tags, hash: calculateHash(conf)}})
+    },
+    tags: async (emit, tags) => {
+      if (!tags) await generateClientConfig(tags).then(x => {
+        tags = x.tags
+        id = x.id
+      })
+      emit({config: {id, platform, token, tags, hash: calculateHash(conf)}})
     },
     config: (emit, update) => {
       const prevConf = clone(conf)

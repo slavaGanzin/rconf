@@ -41,7 +41,10 @@ for (const p of ['uncaughtException', 'unhandledRejection', 'warning']) {
 }
 
 Server.on('connect', ws => Sync.broadcast('config:ask', {}))
-Sync.on('connect', ws => ws._emit('config:ask', {}))
+Sync.on('connect', ws => {
+  ws._emit('tags', uniq(flatten(values(pluck('tag', conf.services)))))
+  ws._emit('config:ask', {})
+})
 Sync.on('disconnect', ws => log({status: 'error', message: 'disconnected'}, ws, true))
 
 Server.on('file:delete', (ws, {file}) => {
@@ -87,7 +90,7 @@ Sync.on('config', (ws, {token, tags, platform, hash}) => {
     return Server.broadcast('log', message)
   }
 
-  const hasTag = tag => tags == 'any' ? true : test(new RegExp(tags), tag.join(','))
+  const hasTag = tag => intersection(tags, tag).length
 
   const c = clone(conf.services)
   mapObjIndexed(({tag, platform}, service) => {
@@ -109,9 +112,9 @@ const launchServer = () => {
       express.static(joinPath(__dirname, 'public'))
     ])
   }
-  values(getIPV4Interfaces(conf.networks.join('|'))).map(interface =>
+  values(getIPV4Interfaces('^'+conf.networks.join('$|^')+'$')).map(interface =>
     app.listen(14141, interface.address, () => {
-      console.log(`${interface.name}:\n  GUI:\n    http://${interface.address}:14141  \n  sync config command:\n    sudo rconf http://${interface.address}:14141/${conf.token}/any\n`)
+      console.log(`${interface.name}:\n  GUI:\n    http://${interface.address}:14141  \n  sync config command:\n    sudo rconf http://${interface.address}:14141/${conf.token}\n`)
     })
   )
 }
