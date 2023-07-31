@@ -18,12 +18,15 @@ const updateConfig = () => {
      v.platform = coerceArray(v.platform || ['.*'])
      v.files = mapObjIndexed((f, name) => {
        if (is(String, f)) f = {path: f}
-       try {
-         f.content = fs.readFileSync(joinPath(DATADIR, name), 'utf-8')
-       } catch (e) {
-         Server.broadcast('log', {status:'error', time: new Date(), message: e.message})
-         return
+       const filename = joinPath(DATADIR, name)
+       try { fs.statSync(filename) } catch(e) {
+         fs.writeFileSync(filename, '')
+         Server.broadcast('file:new', {name, metadata: {
+          language: detectLanguage(name),
+          value: ''
+        }})
        }
+       f.content = fs.readFileSync(filename, 'utf-8')
        return f
      }, v.files)
   }, c.services)

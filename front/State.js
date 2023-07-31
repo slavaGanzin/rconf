@@ -12,6 +12,10 @@ ws.on('file:list', f => {
   State.selectedFile = f[0]
 })
 
+ws.on('file:new', f => {
+  State.files.push(f)
+})
+
 ws.on('file:save', () => {})
 
 State.log = []
