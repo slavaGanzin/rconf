@@ -1,9 +1,14 @@
 # rconf
 
-Rconf is configuration server with web UI that will sync service configuration to remote machines instantly.
+rconf is configuration server with web UI that will sync service configuration to remote machines instantly.
 ![](./docs/ui.png)
 
-### Quick start
+- partial syncronization for different node roles
+- cross-platform configuration
+- single binary, no deps
+- one line installation `curl https://i.jpillora.com/slavaGanzin/rconf! | bash`
+
+### quick start
 **install rconf on server machine**
 ```bash
 curl https://i.jpillora.com/slavaGanzin/rconf! | bash
