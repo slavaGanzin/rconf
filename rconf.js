@@ -79,9 +79,9 @@ Server.on('log:today', (ws, message) =>
 
 Sync.on('log', (ws, message) => log(message, ws, false))
 
-Sync.on('config', (ws, {token, tags, platform, hash}) => {
+Sync.on('config', (ws, {id, token, tags, platform, hash}) => {
   const ip = ws._socket.remoteAddress.replace(/.*:(.*)/, '$1')
-  const message = {platform, tags, id: ip, status: 'ok', time: new Date(), message: 'connected'}
+  const message = {platform, tags, id: id || ip, ip, status: 'ok', time: new Date(), message: 'connected'}
 
   if (conf.token != token) {
     message.message = 'unathorized'

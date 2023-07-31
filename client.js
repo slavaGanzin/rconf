@@ -12,8 +12,8 @@ module.exports = queryUrl => {
     'config:ask': emit => {
       if (tags) emit({config: {id, platform, token, tags, hash: calculateHash(conf)}})
     },
-    tags: async (emit, tags) => {
-      if (!tags) await generateClientConfig(tags).then(x => {
+    tags: async (emit, serverTags) => {
+      if (!tags) await generateClientConfig(serverTags).then(x => {
         tags = x.tags
         id = x.id
       })
@@ -25,7 +25,7 @@ module.exports = queryUrl => {
 
       const log = (service, message, json) => {
         console.log({service, message, json})
-        emit({log: {message, service, json}})
+        emit({log: {message, service, json, id}})
       }
 
       mapObjIndexed(async (s, service) => {

@@ -17,9 +17,10 @@ function NodeTree({onClick}) {
             handleSelect,
             level,
           }) => (
-            <div key={element.id} {...getNodeProps()} style={{ paddingLeft: 20 * (level - 1) }}>
+            <div key={element.metadata.id} {...getNodeProps()} style={{ paddingLeft: 20 * (level - 1) }}>
               <div className={'status-'+element.metadata.status}/>
-              {element.name} {(element.metadata.tags||[]).map(x => `#${x}`)}
+               {element.metadata.ip} {element.metadata.ip != element.metadata.id ? element.metadata.id : ''}<br/>
+              {(element.metadata.tags||[]).map(x => `#${x}`)}
               {
                 // isBranch
                 // ? <>{element.name}</>
