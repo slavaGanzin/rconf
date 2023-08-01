@@ -1,4 +1,4 @@
-const {getDiff, every, detectLanguage, joinPath, run, calculateHash, coerceArray, which, mkdirp, dirname, fs} = require('./helpers')
+const {getDiff, every, detectLanguage, joinPath, run, calculateHash, coerceArray, which, mkdirp, dirname, fs, notSoSafeEval} = require('./helpers')
 const {generateClientConfig} = require('./config')
 
 module.exports = queryUrl => {
@@ -39,6 +39,7 @@ module.exports = queryUrl => {
           const prev = tryCatch(fs.readFileSync, () => '')(f.path, 'utf8')
 
           if (calculateHash(prev) == calculateHash(f.content)) continue
+          f.content = replace(/{{{(.*?)}}}/gim, (x,code) => notSoSafeEval(code), f.content)
           fs.writeFileSync(f.path, f.content)
           log(service, 'file:updated '+f.path, {status: 'inprogress', diff: getDiff(prev, f.content)})
         }

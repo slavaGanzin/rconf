@@ -104,5 +104,12 @@ const Spinner = compose(ora, mergeRight({
   spinner: {interval: 380, frames: [ "⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷" ] }
 }))
 
+const notSoSafeEval = code =>
+  new Function('rconf', 'process', 'require', code)({
+    env: process.env,
+    interfaces: getIPV4Interfaces(),
+    // os: require('os'),
+  })
 
-module.exports = {getDiff, every, detectLanguage, joinPath, run, calculateHash, coerceArray, which, mkdirp, dirname, fs, os, getIPV4Interfaces, pp, Spinner}
+
+module.exports = {getDiff, every, detectLanguage, joinPath, run, calculateHash, coerceArray, which, mkdirp, dirname, fs, os, getIPV4Interfaces, pp, Spinner, notSoSafeEval}

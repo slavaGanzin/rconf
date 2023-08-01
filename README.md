@@ -90,6 +90,26 @@ $ rconf "http://192.168.1.85:14141/ea9b50e5de7e17e0ff38f0b7808917acbbe87ca6ce46e
 Hello world!
 ```
 
+### Code execution
+If you need dynamic configuration, i.e. tailored for each host use `{{{return javascript code}}}` in any configuration file (except rconf.yaml). For example:
+
+```
+#nginx.conf
+http {
+    events {
+        worker_connections {{{return parseInt(Math.random()*100)}}};
+    }
+    server {
+        listen {{{return rconf.interfaces.eth0.address}}}:3001;
+        server_name {{{
+            if (rconf.env.HOSTNAME) return rconf.env.HOSTNAME
+            return 'default.hostname'
+          }};
+    }
+}
+```
+Is this secure? No. Use with caution
+
 ### Cookbook
 
 #### join all devices in single vpn network using zerotier
