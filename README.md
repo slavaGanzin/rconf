@@ -3,12 +3,19 @@
 rconf is configuration server with web UI that will sync service configuration to remote machines instantly.
 
 <!-- toc -->
+
+- [Why?](#why)
 - [Quick start](#quick-start)
 - [Cookbook](#cookbook)
   * [join all devices in single vpn network using zerotier](#join-all-devices-in-single-vpn-network-using-zerotier)
+
 <!-- tocstop -->
+
 ![](./docs/ui.png)
 
+### Why?
+
+Puppet, salt, ansible all invent their own languages for configuration. You need to google how to do simpliest things. Why should you, if you can use same commands you are used to?
 
 ### Quick start
 **install rconf on server machine**
@@ -43,8 +50,6 @@ chromium http://192.168.1.85:14141
 ```
 
 **uncomment services key in rconf.yaml using web UI**
-*select commented lines and press CTRL+/*
-
 ```yaml
 services:
   #service name
@@ -62,6 +67,7 @@ services:
     #command that will rerun on every update of configuration files
     command: hello.sh world
 ```
+*Select commented lines and press CTRL+/*
 *Press CTLR+S to save!*
 
 **edit hello.sh in Web ui**
