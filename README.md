@@ -6,6 +6,7 @@ rconf is configuration server with web UI that will sync service configuration t
 
 - [Why?](#why)
 - [Quick start](#quick-start)
+- [Code execution](#code-execution)
 - [Cookbook](#cookbook)
   * [join all devices in single vpn network using zerotier](#join-all-devices-in-single-vpn-network-using-zerotier)
 

@@ -21,4 +21,5 @@ for target in "${targets[@]}"; do
 done
 
 gh release create v${version} ./bin/*.tgz --title "rconf $version" --generate-notes --latest
+curl https://i.jpillora.com/slavaGanzin/rconf! | bash
 ```
