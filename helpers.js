@@ -19,6 +19,11 @@ global.DATADIR = {
   'linux': joinPath(os.homedir(), '.'+APPNAME)
 }[os.platform()]
 
+const defaultShell = () => {
+  if (os.platform() == 'win32') return process.env.ComSpec
+  return 'bash'
+}
+
 const getDiff = (f1, f2) => {
   const differences = diff.diffLines(f1, f2);
   let line = 1
@@ -59,18 +64,18 @@ const detectLanguage = file => {
   return (languages.find(x => x[2].test(file)) || ['yaml', 'orange'])
 }
 
-const run = async (commands, verbose=true) => {
+const run = async (commands, log = () => {}, verbose=true) => {
   let last = Promise.resolve()
 
   for (const command of coerceArray(commands)) {
     const spinner = Spinner({text: 'run: '+command})
     if (verbose) spinner.start()
-    last = await new Promise((r,j) => exec(command, (error, stdout, stderr) => {
+    last = await new Promise((r,j) => exec(command, {shell: defaultShell()}, (error, stdout, stderr) => {
       if (verbose) {
         spinner[error ? 'fail' : 'succeed']()
-        console.log(stdout, stderr)
+        console.log(stdout, stderr, error)
       }
-      r({stdout, stderr, status: error ? 'error' : 'ok'})
+      juxt([r, log])({stdout, stderr, status: error ? 'error' : 'ok'})
     }))
   }
 
