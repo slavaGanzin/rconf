@@ -89,6 +89,7 @@ const MonacoEditor = () => {
 
   return <Monaco
     height="100vh"
+    width="69vw"
     theme="vs-dark"
     className='fadeIn'
     path={State.selectedFile?.name}
