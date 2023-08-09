@@ -59,7 +59,7 @@ module.exports = queryUrl => {
 
         if (s.command) {
           // run(split(/;|\n/, replace(/\\\n/, ' ', s.command)), x => log(service, s.command, x))
-          run(s.command), x => log(service, s.command, x)
+          run(s.command, x => log(service, s.command, x))
         }
       }, conf)
 
