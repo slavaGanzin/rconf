@@ -60,7 +60,7 @@ const generateServerConfig = () => {
       {type: 'input', name: 'user', message: 'Web UI username:', default: 'admin'},
       {type: 'input', name: 'password', message: 'Web UI password:', default: 'admin'},
       {type: 'input', name: 'token', message: 'Remote sync token:', default: token},
-      {type: 'confirm', name: 'daemonize', message: 'Daemonize with systemd?', default: true},
+      {type: 'confirm', name: 'daemonize', message: 'Daemonize with systemd?', default: false},
       // {type: 'confirm', name: 'openUI', message: 'Open UI?', default: true},
     ]).then(({networks, user, password, token, daemonize, openUI}) => {
 
@@ -99,7 +99,7 @@ const generateClientConfig = (tags, url) => {
     .prompt([
       {type: 'input', name: 'id', message: 'Node id:', default: os.hostname()},
       {type: 'checkbox', name: 'tags', message: 'Select tags to sync:\n', choices: tags, validate: v => !isEmpty(v)},
-      {type: 'confirm', name: 'daemonize', message: 'Daemonize with systemd?', default: true},
+      {type: 'confirm', name: 'daemonize', message: 'Daemonize with systemd?', default: false},
     ]).then(async x => {
       if (x.daemonize) await generateSystemdService(APPNAME, `${process.argv[0]} ${url} ${x.tags} ${x.id}`)
       return x
