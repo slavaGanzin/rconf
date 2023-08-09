@@ -1,7 +1,7 @@
 {
   "description": "Remote configuration syncronization daemon with Web UI",
   "name": "rconf",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "main": "index.js",
   "license": "MIT",
   "bin": "rconf.js",
