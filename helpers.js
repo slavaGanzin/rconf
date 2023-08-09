@@ -73,9 +73,9 @@ const run = async (commands, log = () => {}, verbose=true) => {
     last = await new Promise((r,j) => exec(command, {shell: defaultShell()}, (error, stdout, stderr) => {
       if (verbose) {
         spinner[error ? 'fail' : 'succeed']()
-        console.log(stdout, stderr, error)
+        console.log(stdout, stderr)
       }
-      juxt([r, log])({stdout, stderr, status: error ? 'error' : 'ok', error})
+      juxt([r, log])({stdout, stderr, status: error ? 'error' : 'ok'})
     }))
   }
 
