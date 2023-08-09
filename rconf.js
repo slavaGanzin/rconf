@@ -36,6 +36,8 @@ const log = (message, ws, broadcastNode = false) => {
   if (broadcastNode) Server.broadcast('node', message)
 }
 
+log({message: 'restarted', status: 'ok'})
+
 for (const p of ['uncaughtException', 'unhandledRejection', 'warning']) {
   process.on(p, (error) => log({id: 'rconf', message: error.message, status: 'error'}))
 }
