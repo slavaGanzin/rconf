@@ -44,15 +44,25 @@ module.exports = queryUrl => {
           log(service, 'file:updated '+f.path, {status: 'inprogress', diff: getDiff(prev, f.content)})
         }
 
-        await Promise.all(values(mapObjIndexed((install, check) => which(check).catch(() => {
-          run(install).then(x => log(service, install, x))
+        await Promise.all(values(mapObjIndexed(async (install, check) => {
+          let runCheck
+          if (install.check) {
+            runCheck = run(install.check)
+            install = install.install
+          } else {
+            runCheck = Promise.any([which(check), fs.promises.stat(check)])
+          }
+
+          await runCheck
+            .catch(() => run(install).then(x => log(service, install, x)))
+
         }), s.install || {})))
 
         if (s.command) {
           run(s.command).then(x => log(service, s.command, x))
         }
-
       }, conf)
+
     }
   })
 }
