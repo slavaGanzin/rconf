@@ -53,13 +53,13 @@ module.exports = queryUrl => {
           if (!install.check)
             return which(check).catch(() => run(install, x => log(service, install, x)))
 
-          const {error} = await run(install.check, () => {}, true)
-          if (error) return run(install.install, x => log(service, install.install, x))
+          const {status} = await run(install.check, () => {}, true)
+          if (status == 'error') return run(install.install, x => log(service, install.install, x))
         }, s.install || {})))
 
         if (s.command) {
           // run(split(/;|\n/, replace(/\\\n/, ' ', s.command)), x => log(service, s.command, x))
-          run(s.command), x => log(service, s.command, x))
+          run(s.command), x => log(service, s.command, x)
         }
       }, conf)
 
