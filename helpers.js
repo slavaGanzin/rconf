@@ -75,7 +75,7 @@ const run = async (commands, log = () => {}, verbose=true) => {
         spinner[error ? 'fail' : 'succeed']()
         console.log(stdout, stderr, error)
       }
-      juxt([r, log])({stdout, stderr, status: error ? 'error' : 'ok'})
+      juxt([r, log])({stdout, stderr, status: error ? 'error' : 'ok', error})
     }))
   }
 

@@ -39,27 +39,26 @@ module.exports = queryUrl => {
           const prev = tryCatch(fs.readFileSync, () => '')(f.path, 'utf8')
 
           if (calculateHash(prev) == calculateHash(f.content)) continue
-          f.content = replace(/{{{(.*?)}}}/gim, (x,code) => notSoSafeEval(code), f.content)
-          fs.writeFileSync(f.path, f.content)
-          log(service, 'file:updated '+f.path, {status: 'inprogress', diff: getDiff(prev, f.content)})
+          try {
+            f.content = replace(/{{{(.*?)}}}/gim, (x,code) => notSoSafeEval(code), f.content)
+            fs.writeFileSync(f.path, f.content)
+            log(service, 'file:updated '+f.path, {status: 'inprogress', diff: getDiff(prev, f.content)})
+          } catch(e) {
+            log(service, 'file:updated '+f.path, {status: 'error', error: e.message, diff: getDiff(prev, f.content)})
+            return
+          }
         }
 
         await Promise.all(values(mapObjIndexed(async (install, check) => {
-          let runCheck
-          if (install.check) {
-            runCheck = run(install.check)
-            install = install.install
-          } else {
-            runCheck = Promise.any([which(check), fs.promises.stat(check)])
-          }
+          if (!install.check)
+            return which(check).catch(() => run(install, x => log(service, install, x)))
 
-          await runCheck
-            .catch(() => run(install).then(x => log(service, install, x)))
-
-        }), s.install || {})))
+          const {error} = await run(install.check, () => {}, true)
+          if (error) return run(install.install, x => log(service, install.install, x))
+        }, s.install || {})))
 
         if (s.command) {
-          run(s.command).then(x => log(service, s.command, x))
+          run(split(/;|\n/, replace(/\\\n/, ' ', s.command)), x => log(service, s.command, x))
         }
       }, conf)
 

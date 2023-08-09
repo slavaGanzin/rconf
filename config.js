@@ -75,16 +75,17 @@ auth:
 #services:
 #   #service name
 #   hello:
-#     #will work only on machines that selected tag "test" for syncronization
-#     tag: test
-#     #will work only on linux machines
-#     platform: linux
+#     tag: test #will work only on machines that selected tag "test" for syncronization
+#     platform: linux #will work only on linux machines
+#
 #     files:
 #       #local file hello.sh will be copied to /usr/local/bin/hello.sh on remote machine
 #       hello.sh: /usr/local/bin/hello.sh
+#
 #     install:
 #       #if running \`which hello.sh\` will fail on remote machine - apply \`chmod\`
 #       hello.sh: chmod +x /usr/local/bin/hello.sh
+#
 #     #command that will rerun on every update of configuration files
 #     command: hello.sh world
 `)
