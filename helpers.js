@@ -69,6 +69,7 @@ const run = async (commands, log = () => {}, verbose=true) => {
 
   for (const command of coerceArray(commands)) {
     const spinner = Spinner({text: 'run: '+command})
+    log({status: 'inprogress'})
     if (verbose) spinner.start()
     last = await new Promise((r,j) => exec(command, {shell: defaultShell()}, (error, stdout, stderr) => {
       if (verbose) {

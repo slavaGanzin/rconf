@@ -29,10 +29,13 @@ module.exports = queryUrl => {
         emit({log: {message, service, json, id}})
       }
 
+      const inSequence = x => 
+        inSequence.Q = inSequence.Q.then(x)
+      inSequence.Q = Promise.resolve()
+
       mapObjIndexed(async (s, service) => {
         if (calculateHash(propOr({}, service, prevConf)) == calculateHash(s)) return
 
-        // log(service, 'changed', {status: 'inprogress'})
         for (const f of values(s.files)) {
           mkdirp.sync(dirname(f.path))
 
@@ -51,10 +54,10 @@ module.exports = queryUrl => {
 
         await Promise.all(values(mapObjIndexed(async (install, check) => {
           if (!install.check)
-            return which(check).catch(() => run(install, x => log(service, install, x)))
+            return which(check).catch(() => inSequence(() => run(install, x => log(service, install, x))))
 
           const {status} = await run(install.check, () => {}, true)
-          if (status == 'error') return run(install.install, x => log(service, install.install, x))
+          if (status == 'error') return inSequence(() => run(install.install, x => log(service, install.install, x)))
         }, s.install || {})))
 
         if (s.command) {
